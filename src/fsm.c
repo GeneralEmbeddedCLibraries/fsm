@@ -8,6 +8,66 @@
 * @author   Ziga Miklosic
 * @date     22.04.2022
 * @version	V1.0.0
+*
+*@section Description
+*
+* 	This module contains general finite state machine code for general
+* 	purpose usage. Each FSM is created as individual, separate instance
+* 	creating high level of flexibility.
+*
+*@section Code_example
+*@code
+*
+*
+*   // ------------------------------------
+*	// 		VARIABLES
+*	// ------------------------------------
+*
+*	// 	APP FSM State Configurations
+*	const static fsm_cfg_t g_fsm_cfg_table =
+*	{
+*		// 		State functions
+*		//
+*		// 	NOTE: Sequence matters!
+*		.func = { 	NULL,						// eAPP_FSM_POR - No need for function
+*					app_fsm_pot_mode_hndl,		// eAPP_FSM_POT
+*					app_fsm_ssi_mode_hndl,		// eAPP_FSM_SSI
+*					app_fsm_hall_mode_hndl,		// eAPP_FSM_HALL
+*				},
+*		.name = "App FSM",
+*		.num_of = eAPP_FSM_NUM_OF,	// TODO: Try to omit this!!!
+*	};
+*
+*	// 	App FSM instance
+*	static p_fsm_t g_app_fsm = NULL;
+*
+*
+*   // ------------------------------------
+*	// 		PROGRAM
+*	// ------------------------------------
+*
+*	// 1. Init
+*	fsm_init( &g_app_fsm, &g_fsm_cfg_table )
+*
+*	// 2. Handle fsm
+*	@x_ms
+*	{
+*		fsm_hndl( g_app_fsm );
+*	}
+*
+*	// 3. Fill up actions inside FSM states
+*	static void app_fsm_ssi_mode_hndl(void)
+*	{
+*		// First entry
+*		if ( true == fsm_get_first_entry( g_app_fsm ))
+*		{
+*			// First entry actions here...
+*		}
+*
+*	}
+*
+*@endcode
+*
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -275,26 +335,19 @@ fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state)
 *   	Get current FSM state
 *
 * @param[in]	fsm_inst	- FSM instance
-* @param[out]	p_state 	- Pointer to current FMS state
-* @return   	status		- Status of operation
+* @return   	state		- Current state of FSM
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_get_state(p_fsm_t fsm_inst, uint8_t * const p_state)
+uint8_t fsm_get_state(p_fsm_t fsm_inst)
 {
-	fsm_status_t status = eFSM_OK;
+	uint8_t state = 0;
 
-	if 	(	( NULL != fsm_inst )
-		&& 	( NULL != p_state ))
+	if ( NULL != fsm_inst )
 	{
-		*p_state = fsm_inst->state.cur;
-	}
-	else
-	{
-		status = eFSM_ERROR;
+		state = fsm_inst->state.cur;
 	}
 
-
-	return status;
+	return state;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -305,54 +358,40 @@ fsm_status_t fsm_get_state(p_fsm_t fsm_inst, uint8_t * const p_state)
 * 			duration but rather number of time that it is being
 * 			executed.
 *
-* @param[in]	fsm_inst		- FSM instance
-* @param[out]	p_loop_cnt 		- Pointer to loop counts
-* @return   	status			- Status of operation
+* @param[in]	fsm_inst	- FSM instance
+* @return   	loop_cnt	- Loop counter
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_get_duration(p_fsm_t fsm_inst, uint32_t * const p_loop_cnt)
+uint32_t fsm_get_duration(p_fsm_t fsm_inst)
 {
-	fsm_status_t status = eFSM_OK;
+	uint32_t loop_cnt = 0;
 
-	if 	(	( NULL != fsm_inst )
-		&& 	( NULL != p_loop_cnt ))
+	if ( NULL != fsm_inst )
 	{
-		*p_loop_cnt = fsm_inst->loop_cnt;
-	}
-	else
-	{
-		status = eFSM_ERROR;
+		loop_cnt = fsm_inst->loop_cnt;
 	}
 
-
-	return status;
+	return loop_cnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
 *   	Get first state entry flag
 *
-* @param[in]	fsm_inst		- FSM instance
-* @param[out]	p_first_entry 	- Pointer to first entry
-* @return   	status			- Status of operation
+* @param[in]	fsm_inst	- FSM instance
+* @return   	first_entry	- First entry into state
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_get_first_entry(p_fsm_t fsm_inst, bool * const p_first_entry)
+bool fsm_get_first_entry(p_fsm_t fsm_inst)
 {
-	fsm_status_t status = eFSM_OK;
+	bool first_entry = false;
 
-	if 	(	( NULL != fsm_inst )
-		&& 	( NULL != p_first_entry ))
+	if 	( NULL != fsm_inst )
 	{
-		*p_first_entry = fsm_inst->first_entry;
-	}
-	else
-	{
-		status = eFSM_ERROR;
+		first_entry = fsm_inst->first_entry;
 	}
 
-
-	return status;
+	return first_entry;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

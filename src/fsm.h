@@ -58,7 +58,7 @@ typedef void (*pf_state_t)(void);
 typedef struct
 {
 	pf_state_t		func[8];	/**<Pointer to function to execute inside state */
-	const uint8_t *	name;		/**<Name of FSM machine */
+	const char *	name;		/**<Name of FSM machine */
 	uint8_t	 		num_of;		/**<Number of all states */
 } fsm_cfg_t;
 
@@ -74,9 +74,10 @@ fsm_status_t fsm_init   			(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 fsm_status_t fsm_is_init			(p_fsm_t fsm_inst, bool * const p_is_init);
 fsm_status_t fsm_hndl				(p_fsm_t fsm_inst);
 fsm_status_t fsm_goto_state			(p_fsm_t fsm_inst, const uint8_t state);
-fsm_status_t fsm_get_state			(p_fsm_t fsm_inst, uint8_t * const p_state);
-fsm_status_t fsm_get_duration		(p_fsm_t fsm_inst, uint32_t * const p_loop_cnt);
-fsm_status_t fsm_get_first_entry	(p_fsm_t fsm_inst, bool * const p_first_entry);
+
+uint8_t 	fsm_get_state		(p_fsm_t fsm_inst);
+uint32_t 	fsm_get_duration	(p_fsm_t fsm_inst);
+bool 		fsm_get_first_entry	(p_fsm_t fsm_inst);
 
 
 #endif // __FSM_H_
