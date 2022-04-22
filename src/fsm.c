@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "fsm.h"
+#include "../../fsm_cfg.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Definitions
@@ -85,9 +86,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
 	// State change
 	if ( fsm_inst->state.cur != fsm_inst->state.next )
 	{
-
-		// TODO:
-		//DRIVE_FSM_DBG_PRINT( "%s -> %s", gs_state_name[ p_fsm -> state.cur ], gs_state_name[ p_fsm -> state.next ] );
+		FSM_DBG_PRINT( "%s transition: %d -> %d", fsm_inst->p_cfg->name, fsm_inst->state.cur, fsm_inst->state.next );
 
 		fsm_inst->state.cur 	= fsm_inst->state.next;
 		fsm_inst->first_entry 	= true;
@@ -135,11 +134,16 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 {
 	fsm_status_t status = eFSM_OK;
 
+	FSM_ASSERT( NULL != p_fsm_inst );
+	FSM_ASSERT( NULL != p_cfg );
+
 	if 	(	( NULL != p_fsm_inst )
 		&&	( NULL != p_cfg ))
 	{
 		// Allocate space
 		*p_fsm_inst = malloc( sizeof(p_fsm_t));
+
+		FSM_ASSERT( NULL != *p_fsm_inst );
 
 		// Check if allocation succeed
 		if ( NULL != *p_fsm_inst )

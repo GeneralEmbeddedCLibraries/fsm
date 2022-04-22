@@ -1,0 +1,81 @@
+// Copyright (c) 2022 Ziga Miklosic
+// All Rights Reserved
+// This software is under MIT licence (https://opensource.org/licenses/MIT)
+////////////////////////////////////////////////////////////////////////////////
+/**
+*@file      fsm_cfg.h
+*@brief    	Configuration for FSM
+*@author    Ziga Miklosic
+*@date      22.04.2022
+*@version	V1.0.0
+*/
+////////////////////////////////////////////////////////////////////////////////
+/**
+*@addtogroup FSM_CFG
+* @{ <!-- BEGIN GROUP -->
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef _FSM_CFG_H_
+#define _FSM_CFG_H_
+
+////////////////////////////////////////////////////////////////////////////////
+// Includes
+////////////////////////////////////////////////////////////////////////////////
+#include <stdint.h>
+
+// USER CODE BEGIN...
+
+#include "project_config.h"
+
+// Debug communication port
+#include "middleware/debug_comm_port/com_dbg.h"
+
+// USER CODE END...
+
+////////////////////////////////////////////////////////////////////////////////
+// Definitions
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * 	Enable/Disable debug mode
+ */
+#define FSM_CFG_DEBUG_EN						( 1 )
+
+/**
+ * 	Enable/Disable assertions
+ */
+#define FSM_CFG_ASSERT_EN						( 1 )
+
+
+#ifndef DEBUG
+	#undef FSM_CFG_DEBUG_EN
+	#define FSM_CFG_DEBUG_EN 					( 0 )
+#endif
+
+#ifndef DEBUG
+	#undef FSM_CFG_ASSERT_EN
+	#define FSM_CFG_ASSERT_EN 					( 0 )
+#endif
+
+/**
+ * 	Debug communication port macros
+ */
+#if ( 1 == FSM_CFG_DEBUG_EN )
+	#define FSM_DBG_PRINT( ... )				( com_dbg_print( eCOM_DBG_CH_NONE, (const char*) __VA_ARGS__ ))
+#else
+	#define FSM_DBG_PRINT( ... )				{ ; }
+
+#endif
+
+/**
+ * 	 Assertion macros
+ */
+#if ( 1 == FSM_CFG_ASSERT_EN )
+	#define FSM_ASSERT(x)						PROJECT_CONFIG_ASSERT(x)
+#else
+	#define FSM_ASSERT(x)						{ ; }
+#endif
+
+
+#endif // _FSM_CFG_H_

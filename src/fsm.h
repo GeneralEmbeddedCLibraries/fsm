@@ -57,8 +57,9 @@ typedef void (*pf_state_t)(void);
  */
 typedef struct
 {
-	pf_state_t	func[8];	/**<Pointer to function to execute inside state */
-	uint8_t	 	num_of;		/**<Number of all states */
+	pf_state_t		func[8];	/**<Pointer to function to execute inside state */
+	const uint8_t *	name;		/**<Name of FSM machine */
+	uint8_t	 		num_of;		/**<Number of all states */
 } fsm_cfg_t;
 
 /**
