@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "fsm.h"
 
@@ -71,6 +72,14 @@ static void fsm_manager(p_fsm_t fsm_inst);
 ////////////////////////////////////////////////////////////////////////////////
 
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   	FSM manager
+*
+* @param[in]	fsm_inst	- FSM instance
+* @return   	void
+*/
+////////////////////////////////////////////////////////////////////////////////
 static void fsm_manager(p_fsm_t fsm_inst)
 {
 	// State change
@@ -96,7 +105,6 @@ static void fsm_manager(p_fsm_t fsm_inst)
 		fsm_inst->loop_cnt = FSM_LIMIT_LOOP_CNT( fsm_inst->loop_cnt );
 	}
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,10 +135,14 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 {
 	fsm_status_t status = eFSM_OK;
 
-	if 	(	( NULL != *p_fsm_inst )
+	if 	(	( NULL != p_fsm_inst )
 		&&	( NULL != p_cfg ))
 	{
-		if ( false == (*p_fsm_inst)->is_init )
+		// Allocate space
+		*p_fsm_inst = malloc( sizeof(p_fsm_t));
+
+		// Check if allocation succeed
+		if ( NULL != *p_fsm_inst )
 		{
 			// Get setup
 			(*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
@@ -161,7 +173,7 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 *
 * @param[in]	fsm_inst	- FSM instance
 * @param[out]	p_is_init 	- Initialisation flag
-* @return   	status		- Status of initialisation
+* @return   	status		- Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
@@ -180,7 +192,16 @@ fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
 	return status;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   	FSM handler
+*
+* @note 	Each instance of FSM must call its own handler!
+*
+* @param[in]	fsm_inst	- FSM instance
+* @return   	status		- Status of operation
+*/
+////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
 {
 	fsm_status_t status = eFSM_OK;
@@ -212,7 +233,15 @@ fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
 	return status;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   	Set next FSM state
+*
+* @param[in]	fsm_inst	- FSM instance
+* @param[in]	state 		- Next state
+* @return   	status		- Status of operation
+*/
+////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state)
 {
 	fsm_status_t status = eFSM_OK;
@@ -237,7 +266,15 @@ fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state)
 	return status;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   	Get current FSM state
+*
+* @param[in]	fsm_inst	- FSM instance
+* @param[out]	p_state 	- Pointer to current FMS state
+* @return   	status		- Status of operation
+*/
+////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_get_state(p_fsm_t fsm_inst, uint8_t * const p_state)
 {
 	fsm_status_t status = eFSM_OK;
@@ -256,7 +293,19 @@ fsm_status_t fsm_get_state(p_fsm_t fsm_inst, uint8_t * const p_state)
 	return status;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   	Get FSM state duration in counts of loop
+*
+* @note 	This function does not return absolute time of current state
+* 			duration but rather number of time that it is being
+* 			executed.
+*
+* @param[in]	fsm_inst		- FSM instance
+* @param[out]	p_loop_cnt 		- Pointer to loop counts
+* @return   	status			- Status of operation
+*/
+////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_get_duration(p_fsm_t fsm_inst, uint32_t * const p_loop_cnt)
 {
 	fsm_status_t status = eFSM_OK;
@@ -275,7 +324,15 @@ fsm_status_t fsm_get_duration(p_fsm_t fsm_inst, uint32_t * const p_loop_cnt)
 	return status;
 }
 
-
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   	Get first state entry flag
+*
+* @param[in]	fsm_inst		- FSM instance
+* @param[out]	p_first_entry 	- Pointer to first entry
+* @return   	status			- Status of operation
+*/
+////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_get_first_entry(p_fsm_t fsm_inst, bool * const p_first_entry)
 {
 	fsm_status_t status = eFSM_OK;
@@ -293,8 +350,6 @@ fsm_status_t fsm_get_first_entry(p_fsm_t fsm_inst, bool * const p_first_entry)
 
 	return status;
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /*!
