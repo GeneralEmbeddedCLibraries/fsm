@@ -272,7 +272,7 @@ fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
 
 	if ( NULL != fsm_inst )
 	{
-		if ( false == fsm_inst->is_init )
+		if ( true == fsm_inst->is_init )
 		{
 			// Manage FSM
 			fsm_manager( fsm_inst );
