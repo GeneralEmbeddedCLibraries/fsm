@@ -35,7 +35,9 @@
  */
 typedef struct fsm_s
 {
-	uint8_t i;
+	fsm_cfg_t 	cfg;			/**<FSM setup */
+	uint32_t 	duration;		/**<Duration inside FSM state */
+	bool		first_entry;	/**<First entry of state */
 } fsm_t;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +83,9 @@ static bool gb_is_init = false;
 /**
 *   Initialise FSMs
 *
-*
-* @return   status	- Status of initialisation
+* @param[out]	p_fsm_inst	- Pointer to FSM instance
+* @param[in]	p_cfg		- Pointer to FSM configuration table
+* @return   	status		- Status of initialisation
 */
 ////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
@@ -105,11 +108,12 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 /**
 *   Get FSM initialisation flag
 *
+* @param[in]	fsm_inst	- FSM instance
 * @param[out]	p_is_init 	- Initialisation flag
 * @return   	status		- Status of initialisation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_is_init(p_fsm_t * p_fsm_inst, bool * const p_is_init)
+fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
 {
 	fsm_status_t status = eFSM_OK;
 
@@ -125,6 +129,15 @@ fsm_status_t fsm_is_init(p_fsm_t * p_fsm_inst, bool * const p_is_init)
 	return status;
 }
 
+
+fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
+{
+	fsm_status_t status = eFSM_OK;
+
+
+
+	return status;
+}
 
 
 
