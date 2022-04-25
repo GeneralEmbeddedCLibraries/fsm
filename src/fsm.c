@@ -201,7 +201,7 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 		&&	( NULL != p_cfg ))
 	{
 		// Allocate space
-		*p_fsm_inst = malloc( sizeof(p_fsm_t));
+		*p_fsm_inst = malloc( sizeof( fsm_t ));
 
 		FSM_ASSERT( NULL != *p_fsm_inst );
 
