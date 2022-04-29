@@ -1,12 +1,31 @@
 # **FSM - Finite State Machine**
 This module contains FSM C code implementation for general purpose usage. Each FSM are created as individual, separated instances so different instances of FSM can be configured differently in order to addopt application needs.
 
-## **Dependencies**
+For now this module is not multientry. 
+
 ---
+## **Dependencies**
+
 No dependencies.
 
- ## **API**
 ---
+## **Module configuration**
+
+
+Before using module it is mandatory to setup configurations based on used application. Following macros are defining behaviour of a driver and are listed in **fsm_cfg.h** file.
+
+| Macros | Description | Range | Default | 
+| ------------- | ----------- | ----- | --- |
+| FSM_CFG_DEBUG_EN | Enable/Disable debug mode | 0-1 | 1
+| FSM_CFG_ASSERT_EN | Enable/Disable assertions | 0-1 | 1
+
+| Functions | Description | Comment |
+| ------------- | ----------- | ----- |
+| FSM_DBG_PRINT | Printing to debug channel | Used only if FSM_CFG_DEBUG_EN = 1 |
+| FSM_ASSERT | Assert actions definition | Used only if FSM_CFG_ASSERT_EN = 1 |
+
+---
+ ## **API**
 | API Functions | Description | Prototype |
 | --- | ----------- | ----- |
 | **fsm_init** | Initialization of FSM module | fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg) |****
@@ -17,8 +36,8 @@ No dependencies.
 | **fsm_get_duration** | Get time spend in state | uint32_t fsm_get_duration(p_fsm_t fsm_inst) |
 | **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(p_fsm_t fsm_inst) |
 
-
-## Usage
+---
+## **Module Usage**
 
 1. Create enumeration for FSM states
 ```C
@@ -91,35 +110,35 @@ static void app_100ms_hndl(void)
 
 Example of mode change:
 ```C
-	switch( mode )
-	{
-		case eSEL_POT:
-			fsm_goto_state( g_app_fsm, eAPP_FSM_POT );
-			break;
+switch( mode )
+{
+    case eSEL_POT:
+        fsm_goto_state( g_app_fsm, eAPP_FSM_POT );
+        break;
 
-		case eSEL_SSI:
-			fsm_goto_state( g_app_fsm, eAPP_FSM_SSI );
-			break;
+    case eSEL_SSI:
+        fsm_goto_state( g_app_fsm, eAPP_FSM_SSI );
+        break;
 
-		case eSEL_HALL:
-			fsm_goto_state( g_app_fsm, eAPP_FSM_HALL );
-			break;
+    case eSEL_HALL:
+        fsm_goto_state( g_app_fsm, eAPP_FSM_HALL );
+        break;
 
-		default:
-			// No actions...
-			break;
-	}
+    default:
+        // No actions...
+        break;
+}
 ```
 
 Checking first entry:
 ```C
 static void app_fsm_hall_mode_hndl(void)
 {
-	// First entry
-	if ( true == fsm_get_first_entry( g_app_fsm ))
-	{
+    // First entry
+    if ( true == fsm_get_first_entry( g_app_fsm ))
+    {
         // Action on first entry into "eAPP_FSM_HALL" mode
-	}
+    }
 
     // Other state actions
 }
