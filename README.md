@@ -3,14 +3,12 @@ This module contains FSM C code implementation for general purpose usage. Each F
 
 For now this module is not multientry. 
 
----
 ## **Dependencies**
 
 No dependencies.
 
----
-## **Module configuration**
 
+## **Module configuration**
 
 Before using module it is mandatory to setup configurations based on used application. Following macros are defining behaviour of a driver and are listed in **fsm_cfg.h** file.
 
@@ -24,7 +22,6 @@ Before using module it is mandatory to setup configurations based on used applic
 | FSM_DBG_PRINT | Printing to debug channel | Used only if FSM_CFG_DEBUG_EN = 1 |
 | FSM_ASSERT | Assert actions definition | Used only if FSM_CFG_ASSERT_EN = 1 |
 
----
  ## **API**
 | API Functions | Description | Prototype |
 | --- | ----------- | ----- |
@@ -36,7 +33,6 @@ Before using module it is mandatory to setup configurations based on used applic
 | **fsm_get_duration** | Get time spend in state | uint32_t fsm_get_duration(p_fsm_t fsm_inst) |
 | **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(p_fsm_t fsm_inst) |
 
----
 ## **Module Usage**
 
 1. Create enumeration for FSM states
