@@ -105,7 +105,7 @@ typedef struct
 typedef struct fsm_s
 {
 	fsm_cfg_t *	p_cfg;			/**<FSM setup */
-	uint32_t 	loop_cnt;		/**<Loop counter - number of loops inside state */
+	uint32_t 	duration;		/**<Loop counter - number of loops inside state */
 	fsm_state_t	state;			/**<Current state of FSM */
 	bool		first_entry;	/**<First entry of state */
 	bool		is_init;		/**<Initialization guard */
@@ -116,7 +116,7 @@ typedef struct fsm_s
  *
  * 	Unit: period of fsm handler
  */
-#define FSM_LIMIT_LOOP_CNT(cnt)					(( cnt >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
+#define FSM_LIMIT_duration(cnt)					(( cnt >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -146,11 +146,21 @@ static void fsm_manager(p_fsm_t fsm_inst)
 	// State change
 	if ( fsm_inst->state.cur != fsm_inst->state.next )
 	{
-		FSM_DBG_PRINT( "%s transition: %d -> %d", fsm_inst->p_cfg->name, fsm_inst->state.cur, fsm_inst->state.next );
+		#if ( FSM_CFG_DEBUG_EN )
+			if 	(	( NULL != fsm_inst->p_cfg->state[fsm_inst->state.cur].name )
+				&& 	( NULL != fsm_inst->p_cfg->state[fsm_inst->state.next].name ))
+			{
+				FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->state[fsm_inst->state.cur].name, fsm_inst->p_cfg->state[fsm_inst->state.next].name );
+			}
+			else
+			{
+				FSM_DBG_PRINT( "%s transition: %d -> %d", fsm_inst->p_cfg->name, fsm_inst->state.cur, fsm_inst->state.next );
+			}
+		#endif
 
 		fsm_inst->state.cur 	= fsm_inst->state.next;
 		fsm_inst->first_entry 	= true;
-		fsm_inst->loop_cnt 		= 0UL;
+		fsm_inst->duration 		= 0UL;
 	}
 
 	// Same state
@@ -160,11 +170,10 @@ static void fsm_manager(p_fsm_t fsm_inst)
 		fsm_inst->first_entry = false;
 
 		// Measure time
-		fsm_inst->loop_cnt += 1UL;
-		fsm_inst->loop_cnt = FSM_LIMIT_LOOP_CNT( fsm_inst->loop_cnt );
+		fsm_inst->duration += fsm_inst->p_cfg->period;
+		fsm_inst->duration = FSM_LIMIT_duration( fsm_inst->duration );
 	}
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -215,7 +224,7 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 			(*p_fsm_inst)->state.cur = 0;
 			(*p_fsm_inst)->state.next = (*p_fsm_inst)->state.cur;
 			(*p_fsm_inst)->first_entry = false;
-			(*p_fsm_inst)->loop_cnt = 0;
+			(*p_fsm_inst)->duration = 0;
 			(*p_fsm_inst)->is_init = true;
 		}
 		else
@@ -278,9 +287,13 @@ fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
 			fsm_manager( fsm_inst );
 
 			// Execute current FSM state
-			if ( NULL != fsm_inst->p_cfg->func[ fsm_inst->state.cur ] )
+			if ( NULL != fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func )
 			{
-				fsm_inst->p_cfg->func[ fsm_inst->state.cur ]();
+				fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func();
+			}
+			else
+			{
+				FSM_ASSERT( 0 );
 			}
 		}
 		else
@@ -352,26 +365,24 @@ uint8_t fsm_get_state(p_fsm_t fsm_inst)
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
-*   	Get FSM state duration in counts of loop
+*   	Get FSM state duration
 *
-* @note 	This function does not return absolute time of current state
-* 			duration but rather number of time that it is being
-* 			executed.
+* @note 	This function return duration inside state in miliseconds
 *
 * @param[in]	fsm_inst	- FSM instance
-* @return   	loop_cnt	- Loop counter
+* @return   	duration	- Duration inside state
 */
 ////////////////////////////////////////////////////////////////////////////////
 uint32_t fsm_get_duration(p_fsm_t fsm_inst)
 {
-	uint32_t loop_cnt = 0;
+	uint32_t duration = 0;
 
 	if ( NULL != fsm_inst )
 	{
-		loop_cnt = fsm_inst->loop_cnt;
+		duration = fsm_inst->duration;
 	}
 
-	return loop_cnt;
+	return duration;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

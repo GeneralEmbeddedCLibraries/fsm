@@ -53,13 +53,23 @@ typedef enum
 typedef void (*pf_state_t)(void);
 
 /**
+ * 	State functions
+ */
+typedef struct
+{
+	pf_state_t 	func;	/**<Pointer to function to execute inside state */
+	const char* name;	/**<Name of state - for debug purposes */
+} fsm_state_cfg_t;
+
+/**
  * 	FSM Configuration table
  */
 typedef struct
 {
-	pf_state_t		func[8];	/**<Pointer to function to execute inside state */
-	const char *	name;		/**<Name of FSM machine */
-	uint8_t	 		num_of;		/**<Number of all states */
+	fsm_state_cfg_t		state[8];	/**<States of FSM */
+	const char *		name;		/**<Name of FSM machine */
+	uint32_t			period;		/**<Period of FSM handling in miliseconds */
+	uint8_t	 			num_of;		/**<Number of all states */
 } fsm_cfg_t;
 
 /**
