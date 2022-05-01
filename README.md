@@ -30,7 +30,7 @@ Before using module it is mandatory to setup configurations based on used applic
 | **fsm_hndl** | FSM main handler | fsm_status_t fsm_hndl(p_fsm_t fsm_inst) |
 | **fsm_goto_state** | Change FSM state | fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state) |
 | **fsm_get_state** | Get current FSM state | uint8_t fsm_get_state(p_fsm_t fsm_inst) |
-| **fsm_get_duration** | Get time spend in state | uint32_t fsm_get_duration(p_fsm_t fsm_inst) |
+| **fsm_get_duration** | Get time spend in state in miliseconds | uint32_t fsm_get_duration(p_fsm_t fsm_inst) |
 | **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(p_fsm_t fsm_inst) |
 
 ## **Module Usage**
@@ -64,13 +64,14 @@ const static fsm_cfg_t g_fsm_cfg_table =
 	 *
 	 * 	NOTE: Sequence matters!
 	 */
-	.func = { 	app_fsm_por_mode_hndl,		// eAPP_FSM_POR
-				app_fsm_pot_mode_hndl,		// eAPP_FSM_POT
-				app_fsm_ssi_mode_hndl,		// eAPP_FSM_SSI
-				app_fsm_hall_mode_hndl,		// eAPP_FSM_HALL
+	.state = { 	{ .func = app_fsm_por_mode_hndl, 	.name = "POR" },
+				{ .func = app_fsm_pot_mode_hndl, 	.name = "POT" },
+				{ .func = app_fsm_ssi_mode_hndl, 	.name = "SSI" },
+				{ .func = app_fsm_hall_mode_hndl, 	.name = "HALL" },
 			},
 	.name = "App FSM",
-	.num_of = eAPP_FSM_NUM_OF,	// TODO: Try to omit this!!!
+	.num_of = eAPP_FSM_NUM_OF,
+	.period = 100UL // ms
 };
 ```
 
