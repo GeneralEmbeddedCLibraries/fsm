@@ -1,12 +1,16 @@
 ============================================================
- Version 1.0.0 (xx.xx.2022)
+ Version 1.0.0 (01.05.2022)
 ============================================================
  
  Brief:
  - Initial release
 
  Features: 
- - 
+ - Initialization of FSM as instances
+ - Up to 8 states
+ - Configuration of FSM as single cfg table input
+ - Supports first entry indication
+ - Supports getting duration inside state
 
  Solved issues:
  -
@@ -15,6 +19,7 @@
  - 
 
  Todo:
- - 
+ - State transition allowance & checking
+ - Ommit number of function registration
    
 ============================================================
