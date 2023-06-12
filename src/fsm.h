@@ -37,6 +37,11 @@
 #define FSM_VER_DEVELOP		( 0 )
 
 /**
+ * Float 32-bit definition
+ */
+typedef float float32_t;
+
+/**
  * 	FSM status
  */
 typedef enum
@@ -67,7 +72,7 @@ typedef struct
 {
 	fsm_state_cfg_t		state[8];	/**<States of FSM */
 	const char *		name;		/**<Name of FSM machine */
-	uint32_t			period;		/**<Period of FSM handling in miliseconds */
+	float32_t			period;		/**<Period of FSM handling in user specific unit */
 	uint8_t	 			num_of;		/**<Number of all states */
 } fsm_cfg_t;
 
@@ -85,7 +90,7 @@ fsm_status_t fsm_hndl				(p_fsm_t fsm_inst);
 fsm_status_t fsm_goto_state			(p_fsm_t fsm_inst, const uint8_t state);
 
 uint8_t 	fsm_get_state		(p_fsm_t fsm_inst);
-uint32_t 	fsm_get_duration	(p_fsm_t fsm_inst);
+float32_t 	fsm_get_duration	(p_fsm_t fsm_inst);
 bool 		fsm_get_first_entry	(p_fsm_t fsm_inst);
 
 
