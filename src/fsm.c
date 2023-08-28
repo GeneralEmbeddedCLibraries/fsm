@@ -1,13 +1,14 @@
-// Copyright (c) 2022 Ziga Miklosic
+// Copyright (c) 2023 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
 /**
 * @file     fsm.h
-* @brief    FSM manipulations
-* @author   Ziga Miklosic
-* @date     22.04.2022
-* @version	V1.0.0
+* @brief    Finite State Machine (FSM)
+*@author    Ziga Miklosic
+*@email     ziga.miklosic@gmail.com
+*@date      28.08.2023
+*@version   V1.1.0
 *
 *@section Description
 *
@@ -105,7 +106,7 @@ typedef struct
 typedef struct fsm_s
 {
 	fsm_cfg_t *	p_cfg;			/**<FSM setup */
-	uint32_t 	duration;		/**<Loop counter - number of loops inside state */
+	float32_t 	duration;		/**<Loop counter - number of loops inside state */
 	fsm_state_t	state;			/**<Current state of FSM */
 	bool		first_entry;	/**<First entry of state */
 	bool		is_init;		/**<Initialization guard */
@@ -116,7 +117,7 @@ typedef struct fsm_s
  *
  * 	Unit: period of fsm handler
  */
-#define FSM_LIMIT_duration(cnt)					(( cnt >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
+#define FSM_LIMIT_DURATION(time)					(( time >= 1e10f ) ? ( 1e10f ) : ( time ))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -160,7 +161,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
 
 		fsm_inst->state.cur 	= fsm_inst->state.next;
 		fsm_inst->first_entry 	= true;
-		fsm_inst->duration 		= 0UL;
+		fsm_inst->duration 		= 0.0f;
 	}
 
 	// Same state
@@ -171,7 +172,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
 
 		// Measure time
 		fsm_inst->duration += fsm_inst->p_cfg->period;
-		fsm_inst->duration = FSM_LIMIT_duration( fsm_inst->duration );
+		fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
 	}
 }
 
@@ -224,7 +225,7 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 			(*p_fsm_inst)->state.cur = 0;
 			(*p_fsm_inst)->state.next = (*p_fsm_inst)->state.cur;
 			(*p_fsm_inst)->first_entry = false;
-			(*p_fsm_inst)->duration = 0;
+			(*p_fsm_inst)->duration = 0.0f;
 			(*p_fsm_inst)->is_init = true;
 		}
 		else
@@ -373,9 +374,9 @@ uint8_t fsm_get_state(p_fsm_t fsm_inst)
 * @return   	duration	- Duration inside state
 */
 ////////////////////////////////////////////////////////////////////////////////
-uint32_t fsm_get_duration(p_fsm_t fsm_inst)
+float32_t fsm_get_duration(p_fsm_t fsm_inst)
 {
-	uint32_t duration = 0;
+    float32_t duration = 0;
 
 	if ( NULL != fsm_inst )
 	{

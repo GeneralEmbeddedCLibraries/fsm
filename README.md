@@ -1,26 +1,23 @@
 # **FSM - Finite State Machine**
-This module contains FSM C code implementation for general purpose usage. Each FSM are created as individual, separated instances so different instances of FSM can be configured differently in order to addopt application needs.
+Finite State Machine (FSM) module is implemented in C language for usage in embedded system in order to provide backbone of FSM hidden behind intuitive API design. 
 
-For now this module is not multientry. 
+FSM module is implemented in object oriented fashion as it provide to have multiple FSM objects as fully separated, individual instances. Each instance of FSM can be configured differently in order to fulfill application needs.
 
 ## **Dependencies**
 
-No dependencies.
+FMS module does not have any dependencies.
 
+## **Limitations**
 
-## **Module configuration**
+### **1. Multientry**
+Module is not written to be used on multi core/task/intrrupts systems. 
 
-Before using module it is mandatory to setup configurations based on used application. Following macros are defining behaviour of a driver and are listed in **fsm_cfg.h** file.
+## **General Embedded C Libraries Ecosystem**
+In order to be part of *General Embedded C Libraries Ecosystem* this module must be placed in following path: 
 
-| Macros | Description | Range | Default | 
-| ------------- | ----------- | ----- | --- |
-| FSM_CFG_DEBUG_EN | Enable/Disable debug mode | 0-1 | 1
-| FSM_CFG_ASSERT_EN | Enable/Disable assertions | 0-1 | 1
-
-| Functions | Description | Comment |
-| ------------- | ----------- | ----- |
-| FSM_DBG_PRINT | Printing to debug channel | Used only if FSM_CFG_DEBUG_EN = 1 |
-| FSM_ASSERT | Assert actions definition | Used only if FSM_CFG_ASSERT_EN = 1 |
+```
+root/middleware/fsm/fsm/"module_space"
+```
 
  ## **API**
 | API Functions | Description | Prototype |
@@ -30,28 +27,41 @@ Before using module it is mandatory to setup configurations based on used applic
 | **fsm_hndl** | FSM main handler | fsm_status_t fsm_hndl(p_fsm_t fsm_inst) |
 | **fsm_goto_state** | Change FSM state | fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state) |
 | **fsm_get_state** | Get current FSM state | uint8_t fsm_get_state(p_fsm_t fsm_inst) |
-| **fsm_get_duration** | Get time spend in state in miliseconds | uint32_t fsm_get_duration(p_fsm_t fsm_inst) |
+| **fsm_get_duration** | Get time spend in state in miliseconds | float32_t fsm_get_duration(p_fsm_t fsm_inst) |
 | **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(p_fsm_t fsm_inst) |
 
-## **Module Usage**
+## **Usage**
 
-1. Create enumeration for FSM states
+**GENERAL NOTICE: Put all user code between sections: USER CODE BEGIN & USER CODE END!**
+
+1. Copy template files to root directory of module.
+
+2. Configure FSM module for application needs. Configuration options are following:
+
+| Macros | Description | 
+| ------------- | ----------- |
+| FSM_CFG_DEBUG_EN | Enable/Disable debug mode |
+| FSM_CFG_ASSERT_EN | Enable/Disable assertions |
+| FSM_DBG_PRINT | Printing to debug channel |
+| FSM_ASSERT | Assert actions definition |
+
+3. Create enumeration for FSM states
 ```C
 /**
  * 	APP FSM states
  */
 typedef enum
 {
-	eAPP_FSM_POR = 0,
-	eAPP_FSM_POT,
-	eAPP_FSM_SSI,
-	eAPP_FSM_HALL,
+    eAPP_FSM_POR = 0,
+    eAPP_FSM_POT,
+    eAPP_FSM_SSI,
+    eAPP_FSM_HALL,
 
-	eAPP_FSM_NUM_OF
+    eAPP_FSM_NUM_OF
 } app_fsm_state_t;
 ```
 
-2. Create configuration table for FSM. Here user registers state handlers as pointer functions.
+4. Create configuration table for FSM. Here user registers state handlers as pointer functions.
 
 ```C
 /**
@@ -59,23 +69,26 @@ typedef enum
  */
 const static fsm_cfg_t g_fsm_cfg_table =
 {
-	/**
-	 * 		State functions
-	 *
-	 * 	NOTE: Sequence matters!
-	 */
-	.state = { 	{ .func = app_fsm_por_mode_hndl, 	.name = "POR" },
-				{ .func = app_fsm_pot_mode_hndl, 	.name = "POT" },
-				{ .func = app_fsm_ssi_mode_hndl, 	.name = "SSI" },
-				{ .func = app_fsm_hall_mode_hndl, 	.name = "HALL" },
-			},
-	.name = "App FSM",
-	.num_of = eAPP_FSM_NUM_OF,
-	.period = 100UL // ms
+    /**
+     * 		State functions
+     *
+     * 	NOTE: Sequence matters!
+     */
+    .state = 
+    { 	
+        // NOTE: List function handlers in same sequence as "app_fsm_state_t"! 
+        [eAPP_FSM_POR]      = { .func = NULL, 	                .name = "POR" },    // Example of not using POR handler
+        [eAPP_FSM_POT]      = { .func = app_fsm_pot_mode_hndl, 	.name = "POT" },
+        [eAPP_FSM_SSI]      = { .func = app_fsm_ssi_mode_hndl, 	.name = "SSI" },
+        [eAPP_FSM_HALL]     = { .func = app_fsm_hall_mode_hndl, .name = "HALL" },
+    },
+    .name   = "App FSM",
+    .num_of = eAPP_FSM_NUM_OF,
+    .period = 100.0f // ms
 };
 ```
 
-3. Create variable for FSM instance
+5. Create variable for FSM instance
 ```C
 /**
  * 	App FSM instance
@@ -83,7 +96,7 @@ const static fsm_cfg_t g_fsm_cfg_table =
 static p_fsm_t g_app_fsm = NULL;
 ```
 
-4. Initialize FSM instance
+6. Initialize FSM instance
 ```C
 if ( eFSM_OK != fsm_init( &g_app_fsm, &g_fsm_cfg_table ))
 {
@@ -92,18 +105,18 @@ if ( eFSM_OK != fsm_init( &g_app_fsm, &g_fsm_cfg_table ))
 }
 ```
 
-5. Handle FSM instance
+7. Handle FSM instance
 ```C
 // This is cyclic function
 static void app_100ms_hndl(void)
 {
-	// Handle app FSM
-	fsm_hndl( g_app_fsm );
+    // Handle app FSM
+    fsm_hndl( g_app_fsm );
 }
 
 ```
 
-6. Change state mode, checking first entry (example usage)
+8. Change state mode, checking first entry (example usage)
 
 Example of mode change:
 ```C
