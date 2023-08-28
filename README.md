@@ -1,11 +1,16 @@
 # **FSM - Finite State Machine**
-This module contains FSM C code implementation for general purpose usage. Each FSM are created as individual, separated instances so different instances of FSM can be configured differently in order to addopt application needs.
+Finite State Machine (FSM) module is implemented in C language for usage in embedded system in order to provide backbone of FSM hidden behind intuitive API design. 
 
-For now this module is not multientry. 
+FSM module is implemented in object oriented fashion as it provide to have multiple FSM objects as fully separated, individual instances. Each instance of FSM can be configured differently in order to fulfill application needs.
 
 ## **Dependencies**
 
-No dependencies.
+FMS module does not have any dependencies.
+
+## **Limitations**
+
+### **1. Multientry**
+Module is not written to be used on multi core/task/intrrupts systems. 
 
 ## **General Embedded C Libraries Ecosystem**
 In order to be part of *General Embedded C Libraries Ecosystem* this module must be placed in following path: 
