@@ -37,13 +37,10 @@ root/middleware/fsm/fsm/"module_space"
 | ------------- | ----------- | ----- | --- |
 | FSM_CFG_DEBUG_EN | Enable/Disable debug mode | 0-1 | 1
 | FSM_CFG_ASSERT_EN | Enable/Disable assertions | 0-1 | 1
-
-| Functions | Description | Comment |
-| ------------- | ----------- | ----- |
 | FSM_DBG_PRINT | Printing to debug channel | Used only if FSM_CFG_DEBUG_EN = 1 |
 | FSM_ASSERT | Assert actions definition | Used only if FSM_CFG_ASSERT_EN = 1 |
 
-1. Create enumeration for FSM states
+3. Create enumeration for FSM states
 ```C
 /**
  * 	APP FSM states
@@ -59,7 +56,7 @@ typedef enum
 } app_fsm_state_t;
 ```
 
-2. Create configuration table for FSM. Here user registers state handlers as pointer functions.
+4. Create configuration table for FSM. Here user registers state handlers as pointer functions.
 
 ```C
 /**
@@ -83,7 +80,7 @@ const static fsm_cfg_t g_fsm_cfg_table =
 };
 ```
 
-3. Create variable for FSM instance
+5. Create variable for FSM instance
 ```C
 /**
  * 	App FSM instance
@@ -91,7 +88,7 @@ const static fsm_cfg_t g_fsm_cfg_table =
 static p_fsm_t g_app_fsm = NULL;
 ```
 
-4. Initialize FSM instance
+6. Initialize FSM instance
 ```C
 if ( eFSM_OK != fsm_init( &g_app_fsm, &g_fsm_cfg_table ))
 {
@@ -100,7 +97,7 @@ if ( eFSM_OK != fsm_init( &g_app_fsm, &g_fsm_cfg_table ))
 }
 ```
 
-5. Handle FSM instance
+7. Handle FSM instance
 ```C
 // This is cyclic function
 static void app_100ms_hndl(void)
@@ -111,7 +108,7 @@ static void app_100ms_hndl(void)
 
 ```
 
-6. Change state mode, checking first entry (example usage)
+8. Change state mode, checking first entry (example usage)
 
 Example of mode change:
 ```C
