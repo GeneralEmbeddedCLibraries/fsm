@@ -27,7 +27,7 @@ root/middleware/fsm/fsm/"module_space"
 | **fsm_hndl** | FSM main handler | fsm_status_t fsm_hndl(p_fsm_t fsm_inst) |
 | **fsm_goto_state** | Change FSM state | fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state) |
 | **fsm_get_state** | Get current FSM state | uint8_t fsm_get_state(p_fsm_t fsm_inst) |
-| **fsm_get_duration** | Get time spend in state in miliseconds | uint32_t fsm_get_duration(p_fsm_t fsm_inst) |
+| **fsm_get_duration** | Get time spend in state in miliseconds | float32_t fsm_get_duration(p_fsm_t fsm_inst) |
 | **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(p_fsm_t fsm_inst) |
 
 ## **Usage**
@@ -38,12 +38,12 @@ root/middleware/fsm/fsm/"module_space"
 
 2. Configure FSM module for application needs. Configuration options are following:
 
-| Macros | Description | Range | Default | 
-| ------------- | ----------- | ----- | --- |
-| FSM_CFG_DEBUG_EN | Enable/Disable debug mode | 0-1 | 1
-| FSM_CFG_ASSERT_EN | Enable/Disable assertions | 0-1 | 1
-| FSM_DBG_PRINT | Printing to debug channel | Used only if FSM_CFG_DEBUG_EN = 1 |
-| FSM_ASSERT | Assert actions definition | Used only if FSM_CFG_ASSERT_EN = 1 |
+| Macros | Description | 
+| ------------- | ----------- |
+| FSM_CFG_DEBUG_EN | Enable/Disable debug mode |
+| FSM_CFG_ASSERT_EN | Enable/Disable assertions |
+| FSM_DBG_PRINT | Printing to debug channel |
+| FSM_ASSERT | Assert actions definition |
 
 3. Create enumeration for FSM states
 ```C
