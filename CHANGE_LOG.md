@@ -9,6 +9,7 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Changed
  - Change state time duration to floating point data type 
+ - Added detailed describtion of module usage in README.md
  - Removed doxygen as it was replaced by README.md
  - Removed revision.txt as it was replaced by CHANGE_LOG.md
 
