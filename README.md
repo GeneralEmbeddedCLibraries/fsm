@@ -7,20 +7,12 @@ For now this module is not multientry.
 
 No dependencies.
 
+## **General Embedded C Libraries Ecosystem**
+In order to be part of *General Embedded C Libraries Ecosystem* this module must be placed in following path: 
 
-## **Module configuration**
-
-Before using module it is mandatory to setup configurations based on used application. Following macros are defining behaviour of a driver and are listed in **fsm_cfg.h** file.
-
-| Macros | Description | Range | Default | 
-| ------------- | ----------- | ----- | --- |
-| FSM_CFG_DEBUG_EN | Enable/Disable debug mode | 0-1 | 1
-| FSM_CFG_ASSERT_EN | Enable/Disable assertions | 0-1 | 1
-
-| Functions | Description | Comment |
-| ------------- | ----------- | ----- |
-| FSM_DBG_PRINT | Printing to debug channel | Used only if FSM_CFG_DEBUG_EN = 1 |
-| FSM_ASSERT | Assert actions definition | Used only if FSM_CFG_ASSERT_EN = 1 |
+```
+root/middleware/fsm/fsm/"module_space"
+```
 
  ## **API**
 | API Functions | Description | Prototype |
@@ -33,7 +25,23 @@ Before using module it is mandatory to setup configurations based on used applic
 | **fsm_get_duration** | Get time spend in state in miliseconds | uint32_t fsm_get_duration(p_fsm_t fsm_inst) |
 | **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(p_fsm_t fsm_inst) |
 
-## **Module Usage**
+## **Usage**
+
+**GENERAL NOTICE: Put all user code between sections: USER CODE BEGIN & USER CODE END!**
+
+1. Copy template files to root directory of module.
+
+2. Configure FSM module for application needs. Configuration options are following:
+
+| Macros | Description | Range | Default | 
+| ------------- | ----------- | ----- | --- |
+| FSM_CFG_DEBUG_EN | Enable/Disable debug mode | 0-1 | 1
+| FSM_CFG_ASSERT_EN | Enable/Disable assertions | 0-1 | 1
+
+| Functions | Description | Comment |
+| ------------- | ----------- | ----- |
+| FSM_DBG_PRINT | Printing to debug channel | Used only if FSM_CFG_DEBUG_EN = 1 |
+| FSM_ASSERT | Assert actions definition | Used only if FSM_CFG_ASSERT_EN = 1 |
 
 1. Create enumeration for FSM states
 ```C
