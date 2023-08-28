@@ -52,12 +52,12 @@ root/middleware/fsm/fsm/"module_space"
  */
 typedef enum
 {
-	eAPP_FSM_POR = 0,
-	eAPP_FSM_POT,
-	eAPP_FSM_SSI,
-	eAPP_FSM_HALL,
+    eAPP_FSM_POR = 0,
+    eAPP_FSM_POT,
+    eAPP_FSM_SSI,
+    eAPP_FSM_HALL,
 
-	eAPP_FSM_NUM_OF
+    eAPP_FSM_NUM_OF
 } app_fsm_state_t;
 ```
 
@@ -69,19 +69,21 @@ typedef enum
  */
 const static fsm_cfg_t g_fsm_cfg_table =
 {
-	/**
-	 * 		State functions
-	 *
-	 * 	NOTE: Sequence matters!
-	 */
-	.state = { 	{ .func = app_fsm_por_mode_hndl, 	.name = "POR" },
-				{ .func = app_fsm_pot_mode_hndl, 	.name = "POT" },
-				{ .func = app_fsm_ssi_mode_hndl, 	.name = "SSI" },
-				{ .func = app_fsm_hall_mode_hndl, 	.name = "HALL" },
-			},
-	.name = "App FSM",
-	.num_of = eAPP_FSM_NUM_OF,
-	.period = 100UL // ms
+    /**
+     * 		State functions
+     *
+     * 	NOTE: Sequence matters!
+     */
+    .state = 
+    { 	
+        [eAPP_FSM_POR]      = { .func = app_fsm_por_mode_hndl, 	.name = "POR" },
+        [eAPP_FSM_POT]      = { .func = app_fsm_pot_mode_hndl, 	.name = "POT" },
+        [eAPP_FSM_SSI]      = { .func = app_fsm_ssi_mode_hndl, 	.name = "SSI" },
+        [eAPP_FSM_HALL]     = { .func = app_fsm_hall_mode_hndl, .name = "HALL" },
+    },
+    .name   = "App FSM",
+    .num_of = eAPP_FSM_NUM_OF,
+    .period = 100.0f // ms
 };
 ```
 
@@ -107,8 +109,8 @@ if ( eFSM_OK != fsm_init( &g_app_fsm, &g_fsm_cfg_table ))
 // This is cyclic function
 static void app_100ms_hndl(void)
 {
-	// Handle app FSM
-	fsm_hndl( g_app_fsm );
+    // Handle app FSM
+    fsm_hndl( g_app_fsm );
 }
 
 ```
