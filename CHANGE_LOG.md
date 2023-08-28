@@ -13,6 +13,7 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
  - Removed revision.txt as it was replaced by CHANGE_LOG.md
 
 ### Todo
+ - Make a entry & exit possible actions to each state
  - State transition allowance & checking
  - Ommit number of function registration
 

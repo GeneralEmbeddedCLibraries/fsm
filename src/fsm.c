@@ -116,7 +116,7 @@ typedef struct fsm_s
  *
  * 	Unit: period of fsm handler
  */
-#define FSM_LIMIT_duration(time)					(( time >= 1e10f ) ? ( 1e10f ) : ( time ))
+#define FSM_LIMIT_DURATION(time)					(( time >= 1e10f ) ? ( 1e10f ) : ( time ))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -171,7 +171,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
 
 		// Measure time
 		fsm_inst->duration += fsm_inst->p_cfg->period;
-		fsm_inst->duration = FSM_LIMIT_duration( fsm_inst->duration );
+		fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
 	}
 }
 
