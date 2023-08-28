@@ -76,7 +76,8 @@ const static fsm_cfg_t g_fsm_cfg_table =
      */
     .state = 
     { 	
-        [eAPP_FSM_POR]      = { .func = app_fsm_por_mode_hndl, 	.name = "POR" },
+        // NOTE: List function handlers in same sequence as "app_fsm_state_t"! 
+        [eAPP_FSM_POR]      = { .func = NULL, 	                .name = "POR" },    // Example of not using POR handler
         [eAPP_FSM_POT]      = { .func = app_fsm_pot_mode_hndl, 	.name = "POT" },
         [eAPP_FSM_SSI]      = { .func = app_fsm_ssi_mode_hndl, 	.name = "SSI" },
         [eAPP_FSM_HALL]     = { .func = app_fsm_hall_mode_hndl, .name = "HALL" },
