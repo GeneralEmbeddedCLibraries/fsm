@@ -106,7 +106,8 @@ typedef struct
 typedef struct fsm_s
 {
 	fsm_cfg_t *	p_cfg;			/**<FSM setup */
-	float32_t 	duration;		/**<Loop counter - number of loops inside state */
+	uint32_t 	duration;		/**<Time duration in ms */
+	uint32_t 	tick_prev;      /**<Previous tick in ms, for duration calculations*/
 	fsm_state_t	state;			/**<Current state of FSM */
 	bool		first_entry;	/**<First entry of state */
 	bool		is_init;		/**<Initialization guard */
@@ -170,9 +171,15 @@ static void fsm_manager(p_fsm_t fsm_inst)
 		fsm_inst->state.next = fsm_inst->state.cur;
 		fsm_inst->first_entry = false;
 
-		// Measure time
-		fsm_inst->duration += fsm_inst->p_cfg->period;
+		// Get current time
+		const uint32_t tick_now = FSM_GET_SYSTICK();
+
+        // Accumulate time
+		fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
 		fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
+
+		// Store tick
+		fsm_inst->tick_prev = tick_now;
 	}
 }
 
@@ -214,19 +221,24 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 		*p_fsm_inst = malloc( sizeof( fsm_t ));
 
 		FSM_ASSERT( NULL != *p_fsm_inst );
+		FSM_ASSERT( p_cfg->num_of < FSM_CFG_STATE_MAX );
+		FSM_ASSERT( p_cfg->num_of > 0  );
 
 		// Check if allocation succeed
-		if ( NULL != *p_fsm_inst )
+		if  (   ( NULL != *p_fsm_inst )
+		    &&  ( p_cfg->num_of < FSM_CFG_STATE_MAX )
+		    &&  ( p_cfg->num_of > 0 ))
 		{
 			// Get setup
 			(*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
 
 			// Init internal data
-			(*p_fsm_inst)->state.cur = 0;
-			(*p_fsm_inst)->state.next = (*p_fsm_inst)->state.cur;
-			(*p_fsm_inst)->first_entry = false;
-			(*p_fsm_inst)->duration = 0.0f;
-			(*p_fsm_inst)->is_init = true;
+			(*p_fsm_inst)->state.cur    = 0U;
+			(*p_fsm_inst)->state.next   = (*p_fsm_inst)->state.cur;
+			(*p_fsm_inst)->first_entry  = false;
+			(*p_fsm_inst)->duration     = 0U;
+			(*p_fsm_inst)->tick_prev    = 0U;
+			(*p_fsm_inst)->is_init      = true;
 		}
 		else
 		{
@@ -324,22 +336,18 @@ fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state)
 {
 	fsm_status_t status = eFSM_OK;
 
-	if ( NULL != fsm_inst )
+    FSM_ASSERT( NULL != fsm_inst );
+    FSM_ASSERT( state < fsm_inst->p_cfg->num_of );
+
+	if  (   ( NULL != fsm_inst )
+	    &&  ( state < fsm_inst->p_cfg->num_of ))
 	{
-		if ( state < fsm_inst->p_cfg->num_of )
-		{
-			fsm_inst->state.next = state;
-		}
-		else
-		{
-			status = eFSM_ERROR;
-		}
+	    fsm_inst->state.next = state;
 	}
 	else
 	{
 		status = eFSM_ERROR;
 	}
-
 
 	return status;
 }
@@ -352,9 +360,11 @@ fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state)
 * @return   	state		- Current state of FSM
 */
 ////////////////////////////////////////////////////////////////////////////////
-uint8_t fsm_get_state(p_fsm_t fsm_inst)
+uint8_t fsm_get_state(const p_fsm_t fsm_inst)
 {
-	uint8_t state = 0;
+	uint8_t state = 0U;
+
+	FSM_ASSERT( NULL != fsm_inst );
 
 	if ( NULL != fsm_inst )
 	{
@@ -366,17 +376,17 @@ uint8_t fsm_get_state(p_fsm_t fsm_inst)
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
-*   	Get FSM state duration
-*
-* @note 	This function return duration inside state in miliseconds
+*   	Get FSM state time duration in miliseconds
 *
 * @param[in]	fsm_inst	- FSM instance
-* @return   	duration	- Duration inside state
+* @return   	duration	- Duration inside state in ms
 */
 ////////////////////////////////////////////////////////////////////////////////
-float32_t fsm_get_duration(p_fsm_t fsm_inst)
+uint32_t fsm_get_duration(const p_fsm_t fsm_inst)
 {
-    float32_t duration = 0;
+    uint32_t duration = 0;
+
+    FSM_ASSERT( NULL != fsm_inst );
 
 	if ( NULL != fsm_inst )
 	{
@@ -394,7 +404,7 @@ float32_t fsm_get_duration(p_fsm_t fsm_inst)
 * @return   	first_entry	- First entry into state
 */
 ////////////////////////////////////////////////////////////////////////////////
-bool fsm_get_first_entry(p_fsm_t fsm_inst)
+bool fsm_get_first_entry(const p_fsm_t fsm_inst)
 {
 	bool first_entry = false;
 
