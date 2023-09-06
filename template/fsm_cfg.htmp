@@ -27,6 +27,10 @@
 
 // USER INCLUDE BEGIN...
 
+// HAL
+#include "stm32g4xx_hal.h"
+
+// Global project settings
 #include "config/proj_cfg.h"
 
 // Debug communication port
@@ -39,6 +43,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // USER CODE BEGIN...
+
+/**
+ *  Maximum number of all FSM states
+ */
+#define FSM_CFG_STATE_MAX                       ( 8 )
+
+/**
+ *  Get system timetick in 32-bit unsigned integer form
+ *
+ *  Unit: ms
+ */
+#define FSM_GET_SYSTICK()                      ((uint32_t) HAL_GetTick())
 
 /**
  * 	Enable/Disable debug mode
