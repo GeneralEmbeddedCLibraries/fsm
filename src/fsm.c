@@ -115,10 +115,8 @@ typedef struct fsm_s
 
 /**
  *     Limit loop counts
- *
- *     Unit: period of fsm handler
  */
-#define FSM_LIMIT_DURATION(time)    (( cnt >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
+#define FSM_LIMIT_DURATION(cnt)    (( cnt >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -149,8 +147,8 @@ static void fsm_manager(p_fsm_t fsm_inst)
     if ( fsm_inst->state.cur != fsm_inst->state.next )
     {
         #if ( FSM_CFG_DEBUG_EN )
-            if     (    ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.cur].name )
-                &&     ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.next].name ))
+            if  (   ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.cur].name )
+                &&  ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.next].name ))
             {
                 FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->state[fsm_inst->state.cur].name, fsm_inst->p_cfg->state[fsm_inst->state.next].name );
             }
