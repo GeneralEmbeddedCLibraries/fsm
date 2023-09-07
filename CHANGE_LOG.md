@@ -18,7 +18,6 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 ### Todo
  - Make a entry & exit possible actions to each state
  - State transition allowance & checking
- - Omit number of function registration
 
 ---
 ## V1.1.0 - 28.08.2023
@@ -32,7 +31,6 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 ### Todo
  - Make a entry & exit possible actions to each state
  - State transition allowance & checking
- - Omit number of function registration
 
 ---
 ## V1.0.0 - 01.05.2022
@@ -47,6 +45,5 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Todo
  - State transition allowance & checking
- - Omit number of function registration
 
 ---
