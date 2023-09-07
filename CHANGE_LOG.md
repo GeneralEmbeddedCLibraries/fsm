@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project/module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## V1.2.0 - 07.09.2023
+
+### Added
+ - Asserts at API calls
+ - Check for maximum states at init
+
+### Changed
+ - Omit main handler period from configuration
+ - Added get systick function to configuration  
+
+### Todo
+ - Make a entry & exit possible actions to each state
+ - State transition allowance & checking
+
+---
 ## V1.1.0 - 28.08.2023
 
 ### Changed
@@ -16,7 +31,6 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 ### Todo
  - Make a entry & exit possible actions to each state
  - State transition allowance & checking
- - Omit number of function registration
 
 ---
 ## V1.0.0 - 01.05.2022
@@ -31,6 +45,5 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 
 ### Todo
  - State transition allowance & checking
- - Omit number of function registration
 
 ---
