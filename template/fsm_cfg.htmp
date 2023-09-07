@@ -47,58 +47,58 @@
 /**
  *  Maximum number of all FSM states
  */
-#define FSM_CFG_STATE_MAX                       ( 8 )
+#define FSM_CFG_STATE_MAX               ( 8 )
 
 /**
  *  Get system timetick in 32-bit unsigned integer form
  *
  *  Unit: ms
  */
-#define FSM_GET_SYSTICK()                      ((uint32_t) HAL_GetTick())
+#define FSM_GET_SYSTICK()               ((uint32_t) HAL_GetTick())
 
 /**
- * 	Enable/Disable debug mode
+ *    Enable/Disable debug mode
  */
-#define FSM_CFG_DEBUG_EN						( 1 )
+#define FSM_CFG_DEBUG_EN                ( 1 )
 
 /**
- * 	Enable/Disable assertions
+ *    Enable/Disable assertions
  */
-#define FSM_CFG_ASSERT_EN						( 1 )
+#define FSM_CFG_ASSERT_EN               ( 1 )
 
 // USER CODE END...
 
 #ifndef DEBUG
-	#undef FSM_CFG_DEBUG_EN
-	#define FSM_CFG_DEBUG_EN 					( 0 )
+   #undef FSM_CFG_DEBUG_EN
+   #define FSM_CFG_DEBUG_EN             ( 0 )
 #endif
 
 #ifndef DEBUG
-	#undef FSM_CFG_ASSERT_EN
-	#define FSM_CFG_ASSERT_EN 					( 0 )
+   #undef FSM_CFG_ASSERT_EN
+   #define FSM_CFG_ASSERT_EN            ( 0 )
 #endif
 
 /**
- * 	Debug communication port macros
+ *    Debug communication port macros
  */
 #if ( 1 == FSM_CFG_DEBUG_EN )
     // USER CODE BEGIN...
-	#define FSM_DBG_PRINT( ... )				( cli_printf((char*) __VA_ARGS__ ))
+   #define FSM_DBG_PRINT( ... )         ( cli_printf((char*) __VA_ARGS__ ))
     // USER CODE END...
 #else
-	#define FSM_DBG_PRINT( ... )				{ ; }
+   #define FSM_DBG_PRINT( ... )         { ; }
 
 #endif
 
 /**
- * 	 Assertion macros
+ *     Assertion macros
  */
 #if ( 1 == FSM_CFG_ASSERT_EN )
     // USER CODE BEGIN...
-	#define FSM_ASSERT(x)						PROJ_CFG_ASSERT(x)
+   #define FSM_ASSERT(x)                PROJ_CFG_ASSERT(x)
     // USER CODE END...
 #else
-	#define FSM_ASSERT(x)						{ ; }
+   #define FSM_ASSERT(x)                { ; }
 #endif
 
 #endif // _FSM_CFG_H_
