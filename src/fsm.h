@@ -7,8 +7,8 @@
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      28.08.2023
-*@version   V1.1.0
+*@date      07.09.2023
+*@version   V1.2.0
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -34,48 +34,48 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * 	Module version
+ *     Module version
  */
-#define FSM_VER_MAJOR		( 1 )
-#define FSM_VER_MINOR		( 1 )
-#define FSM_VER_DEVELOP		( 0 )
+#define FSM_VER_MAJOR       ( 1 )
+#define FSM_VER_MINOR       ( 2 )
+#define FSM_VER_DEVELOP     ( 0 )
 
 /**
- * 	FSM status
+ *     FSM status
  */
 typedef enum
 {
-	eFSM_OK 		= 0x00U,		/**<Normal operation */
-	eFSM_ERROR		= 0x01U,		/**<General error */
-	eFSM_ERROR_INIT	= 0x02U,		/**<Initialization error */
+    eFSM_OK         = 0x00U,        /**<Normal operation */
+    eFSM_ERROR      = 0x01U,        /**<General error */
+    eFSM_ERROR_INIT = 0x02U,        /**<Initialization error */
 } fsm_status_t;
 
 /**
- * 	Pointer to FSM state function
+ *     Pointer to FSM state function
  */
 typedef void (*pf_state_t)(void);
 
 /**
- * 	State functions
+ *     State functions
  */
 typedef struct
 {
-	pf_state_t 	func;	/**<Pointer to function to execute inside state */
-	const char* name;	/**<Name of state - for debug purposes */
+    pf_state_t  func;    /**<Pointer to function to execute inside state */
+    const char* name;    /**<Name of state - for debug purposes */
 } fsm_state_cfg_t;
 
 /**
- * 	FSM Configuration table
+ *     FSM Configuration table
  */
 typedef struct
 {
-	fsm_state_cfg_t		state[FSM_CFG_STATE_MAX];	/**<States of FSM */
-	const char *		name;		                /**<Name of FSM machine */
-	uint8_t	 			num_of;		                /**<Number of all states */
+    fsm_state_cfg_t state[FSM_CFG_STATE_MAX];   /**<States of FSM */
+    const char *    name;                       /**<Name of FSM machine */
+    uint8_t         num_of;                     /**<Number of all states */
 } fsm_cfg_t;
 
 /**
- * 	FSM instance type
+ *     FSM instance type
  */
 typedef struct fsm_s * p_fsm_t;
 
@@ -91,6 +91,7 @@ uint32_t     fsm_get_duration       (const p_fsm_t fsm_inst);
 bool         fsm_get_first_entry    (const p_fsm_t fsm_inst);
 
 #endif // __FSM_H_
+
 ////////////////////////////////////////////////////////////////////////////////
 /**
 * @} <!-- END GROUP -->
