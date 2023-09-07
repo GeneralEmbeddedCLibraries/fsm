@@ -86,7 +86,6 @@ const static fsm_cfg_t g_fsm_cfg_table =
     },
     .name   = "App FSM",
     .num_of = eAPP_FSM_NUM_OF,
-    .period = 100.0f // ms
 };
 ```
 
