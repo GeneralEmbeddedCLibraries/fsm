@@ -26,9 +26,9 @@ root/middleware/fsm/fsm/"module_space"
 | **fsm_is_init** | Get initialization flag | fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init) |
 | **fsm_hndl** | FSM main handler | fsm_status_t fsm_hndl(p_fsm_t fsm_inst) |
 | **fsm_goto_state** | Change FSM state | fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state) |
-| **fsm_get_state** | Get current FSM state | uint8_t fsm_get_state(p_fsm_t fsm_inst) |
-| **fsm_get_duration** | Get time spend in state in miliseconds | float32_t fsm_get_duration(p_fsm_t fsm_inst) |
-| **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(p_fsm_t fsm_inst) |
+| **fsm_get_state** | Get current FSM state | uint8_t fsm_get_state(const p_fsm_t fsm_inst) |
+| **fsm_get_duration** | Get time spend in state in miliseconds | uint32_t fsm_get_duration(const p_fsm_t fsm_inst) |
+| **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(const p_fsm_t fsm_inst) |
 
 ## **Usage**
 
@@ -40,6 +40,8 @@ root/middleware/fsm/fsm/"module_space"
 
 | Macros | Description | 
 | ------------- | ----------- |
+| FSM_CFG_STATE_MAX | Maximum number of all states combined |
+| FSM_GET_SYSTICK | Get system timetick in 32-bit form |
 | FSM_CFG_DEBUG_EN | Enable/Disable debug mode |
 | FSM_CFG_ASSERT_EN | Enable/Disable assertions |
 | FSM_DBG_PRINT | Printing to debug channel |
