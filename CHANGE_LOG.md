@@ -7,6 +7,10 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 ---
 ## V1.2.0 - 07.09.2023
 
+### Added
+ - Asserts at API calls
+ - Check for maximum states at init
+
 ### Changed
  - Omit main handler period from configuration
  - Added get systick function to configuration  
