@@ -5,6 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project/module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## V1.2.1 - 27.09.2023
+
+### Fixing
+ - Time duration measurements bug
+
+### Changed
+ - Omit main handler period from configuration
+ - Added get systick function to configuration  
+
+### Todo
+ - Make a entry & exit possible actions to each state
+ - State transition allowance & checking
+
+---
 ## V1.2.0 - 07.09.2023
 
 ### Added
