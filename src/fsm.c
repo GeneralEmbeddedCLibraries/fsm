@@ -7,8 +7,8 @@
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      07.09.2023
-*@version   V1.2.0
+*@date      27.09.2023
+*@version   V1.2.1
 *
 *@section Description
 *
@@ -161,6 +161,9 @@ static void fsm_manager(p_fsm_t fsm_inst)
         fsm_inst->state.cur     = fsm_inst->state.next;
         fsm_inst->first_entry   = true;
         fsm_inst->duration      = 0.0f;
+
+        // Store tick
+        fsm_inst->tick_prev = FSM_GET_SYSTICK();
     }
 
     // Same state

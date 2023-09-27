@@ -7,8 +7,8 @@
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      07.09.2023
-*@version   V1.2.0
+*@date      27.09.2023
+*@version   V1.2.1
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -38,7 +38,7 @@
  */
 #define FSM_VER_MAJOR       ( 1 )
 #define FSM_VER_MINOR       ( 2 )
-#define FSM_VER_DEVELOP     ( 0 )
+#define FSM_VER_DEVELOP     ( 1 )
 
 /**
  *     FSM status
