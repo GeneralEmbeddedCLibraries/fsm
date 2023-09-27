@@ -10,10 +10,6 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 ### Fixing
  - Time duration measurements bug
 
-### Changed
- - Omit main handler period from configuration
- - Added get systick function to configuration  
-
 ### Todo
  - Make a entry & exit possible actions to each state
  - State transition allowance & checking
