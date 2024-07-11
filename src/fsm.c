@@ -303,10 +303,6 @@ fsm_status_t fsm_hndl(const p_fsm_t fsm_inst)
             {
                 fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].func();
             }
-            else
-            {
-                FSM_ASSERT( 0 );
-            }
         }
         else
         {
