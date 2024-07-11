@@ -109,7 +109,6 @@ typedef struct fsm_s
     uint32_t        duration;       /**<Time duration in ms */
     uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
     fsm_state_t     state;          /**<Current state of FSM */
-    bool            first_entry;    /**<First entry of state */
     bool            is_init;        /**<Initialization guard */
 } fsm_t;
 
@@ -158,29 +157,33 @@ static void fsm_manager(p_fsm_t fsm_inst)
             }
         #endif
 
-        fsm_inst->state.cur     = fsm_inst->state.next;
-        fsm_inst->first_entry   = true;
-        fsm_inst->duration      = 0.0f;
-
-        // Store tick
+        // Exit current state
+        if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit )
+        {
+            fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit();
+        }
+        
+        // Enter next state
         fsm_inst->tick_prev = FSM_GET_SYSTICK();
+        fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
+        if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry )
+        {
+            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry();
+        }
     }
 
-    // Same state
-    else
+    fsm_inst->state.cur = fsm_inst->state.next;
+
+    // Accumulate time
+    const uint32_t tick_now = FSM_GET_SYSTICK();
+    fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
+    fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
+    fsm_inst->tick_prev = tick_now;
+
+    // Execute current state
+    if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity )
     {
-        fsm_inst->state.next    = fsm_inst->state.cur;
-        fsm_inst->first_entry   = false;
-
-        // Get current time
-        const uint32_t tick_now = FSM_GET_SYSTICK();
-
-        // Accumulate time
-        fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
-        fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
-
-        // Store tick
-        fsm_inst->tick_prev = tick_now;
+        fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity();
     }
 }
 
@@ -232,9 +235,8 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
             (*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
 
             // Init internal data
-            (*p_fsm_inst)->state.cur    = 0U;
+            (*p_fsm_inst)->state.cur    = (*p_fsm_inst)->state.cur;
             (*p_fsm_inst)->state.next   = (*p_fsm_inst)->state.cur;
-            (*p_fsm_inst)->first_entry  = false;
             (*p_fsm_inst)->duration     = 0U;
             (*p_fsm_inst)->tick_prev    = 0U;
             (*p_fsm_inst)->is_init      = true;
@@ -295,14 +297,7 @@ fsm_status_t fsm_hndl(const p_fsm_t fsm_inst)
     {
         if ( true == fsm_inst->is_init )
         {
-            // Manage FSM
             fsm_manager( fsm_inst );
-
-            // Execute current FSM state
-            if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].func )
-            {
-                fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].func();
-            }
         }
         else
         {
@@ -407,26 +402,6 @@ void fsm_reset_duration(const p_fsm_t fsm_inst)
     {
         fsm_inst->duration = 0;
     }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-/**
-*       Get first state entry flag
-*
-* @param[in]    fsm_inst        - FSM instance
-* @return       first_entry     - First entry into state
-*/
-////////////////////////////////////////////////////////////////////////////////
-bool fsm_get_first_entry(const p_fsm_t fsm_inst)
-{
-    bool first_entry = false;
-
-    if ( NULL != fsm_inst )
-    {
-        first_entry = fsm_inst->first_entry;
-    }
-
-    return first_entry;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

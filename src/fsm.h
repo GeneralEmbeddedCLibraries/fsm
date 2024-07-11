@@ -60,8 +60,10 @@ typedef void (*pf_state_t)(void);
  */
 typedef struct
 {
-    pf_state_t  func;    /**<Pointer to function to execute inside state */
-    const char* name;    /**<Name of state - for debug purposes */
+    pf_state_t on_entry;    /**<State entry function */
+    pf_state_t on_activity; /**<State activity function */
+    pf_state_t on_exit;     /**<State exit function */
+    const char* name;       /**<Name of state - for debug purposes */
 } fsm_state_cfg_t;
 
 /**
@@ -89,7 +91,6 @@ fsm_status_t fsm_goto_state         (const p_fsm_t fsm_inst, const uint8_t state
 uint8_t      fsm_get_state          (const p_fsm_t fsm_inst);
 uint32_t     fsm_get_duration       (const p_fsm_t fsm_inst);
 void         fsm_reset_duration     (const p_fsm_t fsm_inst);
-bool         fsm_get_first_entry    (const p_fsm_t fsm_inst);
 
 #endif // __FSM_H_
 
