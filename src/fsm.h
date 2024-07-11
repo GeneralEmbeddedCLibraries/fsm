@@ -88,6 +88,7 @@ fsm_status_t fsm_hndl               (p_fsm_t fsm_inst);
 fsm_status_t fsm_goto_state         (p_fsm_t fsm_inst, const uint8_t state);
 uint8_t      fsm_get_state          (const p_fsm_t fsm_inst);
 uint32_t     fsm_get_duration       (const p_fsm_t fsm_inst);
+void         fsm_reset_duration     (const p_fsm_t fsm_inst);
 bool         fsm_get_first_entry    (const p_fsm_t fsm_inst);
 
 #endif // __FSM_H_

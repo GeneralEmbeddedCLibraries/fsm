@@ -397,6 +397,24 @@ uint32_t fsm_get_duration(const p_fsm_t fsm_inst)
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
+*       Reset FSM state time duration
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+void fsm_reset_duration(const p_fsm_t fsm_inst)
+{
+    FSM_ASSERT( NULL != fsm_inst );
+
+    if ( NULL != fsm_inst )
+    {
+        fsm_inst->duration = 0;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
 *       Get first state entry flag
 *
 * @param[in]    fsm_inst        - FSM instance
