@@ -261,7 +261,7 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
+fsm_status_t fsm_is_init(const p_fsm_t fsm_inst, bool * const p_is_init)
 {
     fsm_status_t status = eFSM_OK;
 
@@ -287,7 +287,7 @@ fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
+fsm_status_t fsm_hndl(const p_fsm_t fsm_inst)
 {
     fsm_status_t status = eFSM_OK;
 
@@ -331,7 +331,7 @@ fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state)
+fsm_status_t fsm_goto_state(const p_fsm_t fsm_inst, const uint8_t state)
 {
     fsm_status_t status = eFSM_OK;
 
