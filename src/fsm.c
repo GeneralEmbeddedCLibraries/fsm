@@ -147,10 +147,10 @@ static void fsm_manager(p_fsm_t fsm_inst)
     if ( fsm_inst->state.cur != fsm_inst->state.next )
     {
         #if ( FSM_CFG_DEBUG_EN )
-            if  (   ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.cur].name )
-                &&  ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.next].name ))
+            if  (   ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name )
+                &&  ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].name ))
             {
-                FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->state[fsm_inst->state.cur].name, fsm_inst->p_cfg->state[fsm_inst->state.next].name );
+                FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name, fsm_inst->p_cfg->p_states[fsm_inst->state.next].name );
             }
             else
             {
@@ -222,12 +222,10 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
         *p_fsm_inst = malloc( sizeof( fsm_t ));
 
         FSM_ASSERT( NULL != *p_fsm_inst );
-        FSM_ASSERT( p_cfg->num_of < FSM_CFG_STATE_MAX );
         FSM_ASSERT( p_cfg->num_of > 0  );
 
         // Check if allocation succeed
         if  (   ( NULL != *p_fsm_inst )
-            &&  ( p_cfg->num_of < FSM_CFG_STATE_MAX )
             &&  ( p_cfg->num_of > 0 ))
         {
             // Get setup
@@ -301,9 +299,9 @@ fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
             fsm_manager( fsm_inst );
 
             // Execute current FSM state
-            if ( NULL != fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func )
+            if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].func )
             {
-                fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func();
+                fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].func();
             }
             else
             {

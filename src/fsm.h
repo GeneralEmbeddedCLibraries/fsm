@@ -69,9 +69,9 @@ typedef struct
  */
 typedef struct
 {
-    fsm_state_cfg_t state[FSM_CFG_STATE_MAX];   /**<States of FSM */
-    const char *    name;                       /**<Name of FSM machine */
-    uint8_t         num_of;                     /**<Number of all states */
+    fsm_state_cfg_t * p_states; /**<Pointer to states of FSM */
+    const char *    name;       /**<Name of FSM machine */
+    uint8_t         num_of;     /**<Number of all states */
 } fsm_cfg_t;
 
 /**
