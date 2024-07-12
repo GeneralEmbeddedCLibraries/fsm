@@ -110,6 +110,7 @@ typedef struct fsm_s
     uint32_t        duration;       /**<Time duration in ms */
     uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
     fsm_state_t     state;          /**<Current state of FSM */
+    fsm_data_t      data;           /**<Data shared across states */
     bool            is_init;        /**<Initialization guard */
 } fsm_t;
 
@@ -471,6 +472,45 @@ void fsm_reset_duration(const p_fsm_t fsm_inst)
     if ( NULL != fsm_inst )
     {
         fsm_inst->duration = 0;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Get FSM shared data
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       data        - Data
+*/
+////////////////////////////////////////////////////////////////////////////////
+fsm_data_t fsm_get_data(const p_fsm_t fsm_inst)
+{
+    fsm_data_t data = {0};
+
+    FSM_ASSERT( NULL != fsm_inst );
+
+    if ( NULL != fsm_inst )
+    {
+        data = fsm_inst->data;
+    }
+
+    return data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Set FSM shared data
+*
+* @param[in]    fsm_inst    - FSM instance
+* @param[in]    data        - Data
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data)
+{
+    if ( NULL != fsm_inst )
+    {
+        fsm_inst->data = data;
     }
 }
 

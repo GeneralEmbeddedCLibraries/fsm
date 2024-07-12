@@ -51,6 +51,21 @@ typedef enum
 } fsm_status_t;
 
 /**
+ *    Generic data type that is shared across FSM states
+ */
+typedef union fsm_data
+{
+    void *p;        /**<Generic pointer */
+    uint32_t u32;   /**<Single 32-bit unsigned integer */
+    int32_t i32;    /**<Single 32-bit signed integer */
+    struct
+    {
+        uint8_t b1; /**<1st byte */
+        uint8_t b2; /**<2nd byte */
+        uint8_t b3; /**<3rd byte */
+        uint8_t b4; /**<4th byte */
+    } u8x4;         /**<Four 8-bit unsigned integers */
+} fsm_data_t;
 
 /**
  *     FSM instance type
@@ -83,11 +98,6 @@ typedef struct
     uint8_t         num_of;     /**<Number of all states */
 } fsm_cfg_t;
 
-/**
- *     FSM instance type
- */
-typedef struct fsm_s * p_fsm_t;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +108,8 @@ fsm_status_t fsm_goto_state         (const p_fsm_t fsm_inst, const uint8_t state
 uint8_t      fsm_get_state          (const p_fsm_t fsm_inst);
 uint32_t     fsm_get_duration       (const p_fsm_t fsm_inst);
 void         fsm_reset_duration     (const p_fsm_t fsm_inst);
+fsm_data_t   fsm_get_data           (const p_fsm_t fsm_inst);
+void         fsm_set_data           (const p_fsm_t fsm_inst, const fsm_data_t data);
 
 #endif // __FSM_H_
 
