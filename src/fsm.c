@@ -127,6 +127,7 @@ typedef struct fsm_s
 // Function Prototypes
 ////////////////////////////////////////////////////////////////////////////////
 static void fsm_manager(p_fsm_t fsm_inst);
+static void fsm_manager(const p_fsm_t fsm_inst);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -141,7 +142,7 @@ static void fsm_manager(p_fsm_t fsm_inst);
 * @return       void
 */
 ////////////////////////////////////////////////////////////////////////////////
-static void fsm_manager(p_fsm_t fsm_inst)
+static void fsm_manager(const p_fsm_t fsm_inst)
 {
     if (fsm_inst->state.is_init)
     {
@@ -165,7 +166,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
         fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
         if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry )
         {
-            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry();
+            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry(fsm_inst);
         }
         fsm_inst->state.cur = fsm_inst->state.next;
     }
@@ -189,7 +190,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
         // Exit current state
         if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit )
         {
-            fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit();
+            fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit(fsm_inst);
         }
         
         // Enter next state
@@ -197,7 +198,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
         fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
         if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry )
         {
-            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry();
+            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry(fsm_inst);
         }
         fsm_inst->state.cur = fsm_inst->state.next;
     }
@@ -215,7 +216,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
     // Execute current state
     if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity )
     {
-        fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity();
+        fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity(fsm_inst);
     }
 }
 

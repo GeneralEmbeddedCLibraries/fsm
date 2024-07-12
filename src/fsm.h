@@ -51,9 +51,16 @@ typedef enum
 } fsm_status_t;
 
 /**
+
+/**
+ *     FSM instance type
+ */
+typedef struct fsm_s * p_fsm_t;
+
+/**
  *     Pointer to FSM state function
  */
-typedef void (*pf_state_t)(void);
+typedef void (*pf_state_t)(const p_fsm_t fsm_inst);
 
 /**
  *     State functions
