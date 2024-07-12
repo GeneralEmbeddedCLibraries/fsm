@@ -96,6 +96,7 @@
  */
 typedef struct
 {
+    bool is_init;   /**<Is current state initial state? */
     uint8_t cur;    /**<Current state */
     uint8_t next;   /**<Next/Requested state */
 } fsm_state_t;
@@ -142,18 +143,46 @@ static void fsm_manager(p_fsm_t fsm_inst);
 ////////////////////////////////////////////////////////////////////////////////
 static void fsm_manager(p_fsm_t fsm_inst)
 {
-    // State change
-    if ( fsm_inst->state.cur != fsm_inst->state.next )
+    if (fsm_inst->state.is_init)
     {
         #if ( FSM_CFG_DEBUG_EN )
-            if  (   ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name )
-                &&  ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].name ))
+            if (NULL != fsm_inst->p_cfg->name)
             {
-                FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name, fsm_inst->p_cfg->p_states[fsm_inst->state.next].name );
+                if  ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].name )
+                {
+                    FSM_DBG_PRINT( "%s transition: 'initial' -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->p_states[fsm_inst->state.next].name );
+                }
+                else
+                {
+                    FSM_DBG_PRINT( "%s transition: initial -> %d", fsm_inst->p_cfg->name, fsm_inst->state.next );
+                }
             }
-            else
+        #endif
+
+        fsm_inst->state.is_init = false;
+        // Execute entry of next state only; initial state does not have an exit activity
+        fsm_inst->tick_prev = FSM_GET_SYSTICK();
+        fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
+        if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry )
+        {
+            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry();
+        }
+        fsm_inst->state.cur = fsm_inst->state.next;
+    }
+    else if ( fsm_inst->state.cur != fsm_inst->state.next )
+    {
+        #if ( FSM_CFG_DEBUG_EN )
+            if (NULL != fsm_inst->p_cfg->name)
             {
-                FSM_DBG_PRINT( "%s transition: %d -> %d", fsm_inst->p_cfg->name, fsm_inst->state.cur, fsm_inst->state.next );
+                if  (   ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name )
+                    &&  ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].name ))
+                {
+                    FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name, fsm_inst->p_cfg->p_states[fsm_inst->state.next].name );
+                }
+                else
+                {
+                    FSM_DBG_PRINT( "%s transition: %d -> %d", fsm_inst->p_cfg->name, fsm_inst->state.cur, fsm_inst->state.next );
+                }
             }
         #endif
 
@@ -170,9 +199,12 @@ static void fsm_manager(p_fsm_t fsm_inst)
         {
             fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry();
         }
+        fsm_inst->state.cur = fsm_inst->state.next;
     }
-
-    fsm_inst->state.cur = fsm_inst->state.next;
+    else
+    {
+        // Same state
+    }
 
     // Accumulate time
     const uint32_t tick_now = FSM_GET_SYSTICK();
@@ -235,11 +267,12 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
             (*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
 
             // Init internal data
-            (*p_fsm_inst)->state.cur    = (*p_fsm_inst)->state.cur;
-            (*p_fsm_inst)->state.next   = (*p_fsm_inst)->state.cur;
-            (*p_fsm_inst)->duration     = 0U;
-            (*p_fsm_inst)->tick_prev    = 0U;
-            (*p_fsm_inst)->is_init      = true;
+            (*p_fsm_inst)->state.cur     = 0U;
+            (*p_fsm_inst)->state.next    = (*p_fsm_inst)->state.cur;
+            (*p_fsm_inst)->state.is_init = true;
+            (*p_fsm_inst)->duration      = 0U;
+            (*p_fsm_inst)->tick_prev     = 0U;
+            (*p_fsm_inst)->is_init       = true;
         }
         else
         {
