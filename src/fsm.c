@@ -126,13 +126,77 @@ typedef struct fsm_s
 ////////////////////////////////////////////////////////////////////////////////
 // Function Prototypes
 ////////////////////////////////////////////////////////////////////////////////
-static void fsm_manager(p_fsm_t fsm_inst);
+static void fsm_exit_cur_state(const p_fsm_t fsm_inst);
+static void fsm_enter_next_state(const p_fsm_t fsm_inst);
+static void fsm_handle_cur_state(const p_fsm_t fsm_inst);
 static void fsm_manager(const p_fsm_t fsm_inst);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Exit current FSM state by calling its exit function
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_exit_cur_state(const p_fsm_t fsm_inst)
+{
+    if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit )
+    {
+        fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit(fsm_inst);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Enter next FSM state by calling its entry function
+*
+*       This function resets state duration before entry is executed.
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_enter_next_state(const p_fsm_t fsm_inst)
+{
+    fsm_inst->tick_prev = FSM_GET_SYSTICK();
+    fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
+    if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry )
+    {
+        fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry(fsm_inst);
+    }
+    fsm_inst->state.cur = fsm_inst->state.next;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Handle current FSM state by calling its activity function
+*
+*       This function increments state duration and saturates it before activity
+*       is executed.
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_handle_cur_state(const p_fsm_t fsm_inst)
+{
+    // Accumulate time
+    const uint32_t tick_now = FSM_GET_SYSTICK();
+    fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
+    fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
+    fsm_inst->tick_prev = tick_now;
+
+    // Execute current state
+    if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity )
+    {
+        fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity(fsm_inst);
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -162,13 +226,7 @@ static void fsm_manager(const p_fsm_t fsm_inst)
 
         fsm_inst->state.is_init = false;
         // Execute entry of next state only; initial state does not have an exit activity
-        fsm_inst->tick_prev = FSM_GET_SYSTICK();
-        fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
-        if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry )
-        {
-            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry(fsm_inst);
-        }
-        fsm_inst->state.cur = fsm_inst->state.next;
+        fsm_enter_next_state(fsm_inst);
     }
     else if ( fsm_inst->state.cur != fsm_inst->state.next )
     {
@@ -187,37 +245,15 @@ static void fsm_manager(const p_fsm_t fsm_inst)
             }
         #endif
 
-        // Exit current state
-        if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit )
-        {
-            fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_exit(fsm_inst);
-        }
-        
-        // Enter next state
-        fsm_inst->tick_prev = FSM_GET_SYSTICK();
-        fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
-        if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry )
-        {
-            fsm_inst->p_cfg->p_states[ fsm_inst->state.next ].on_entry(fsm_inst);
-        }
-        fsm_inst->state.cur = fsm_inst->state.next;
+        fsm_exit_cur_state(fsm_inst);        
+        fsm_enter_next_state(fsm_inst);
     }
     else
     {
         // Same state
     }
 
-    // Accumulate time
-    const uint32_t tick_now = FSM_GET_SYSTICK();
-    fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
-    fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
-    fsm_inst->tick_prev = tick_now;
-
-    // Execute current state
-    if ( NULL != fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity )
-    {
-        fsm_inst->p_cfg->p_states[ fsm_inst->state.cur ].on_activity(fsm_inst);
-    }
+    fsm_handle_cur_state(fsm_inst);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
