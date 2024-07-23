@@ -509,6 +509,7 @@ void fsm_reset_duration(const p_fsm_t fsm_inst)
     if ( NULL != fsm_inst )
     {
         fsm_inst->duration = 0;
+        fsm_inst->tick_prev = FSM_GET_SYSTICK();
     }
 }
 
