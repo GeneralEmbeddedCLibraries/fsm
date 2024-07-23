@@ -103,6 +103,7 @@ typedef struct
 ////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_init               (p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg);
 fsm_status_t fsm_is_init            (const p_fsm_t fsm_inst, bool * const p_is_init);
+fsm_status_t fsm_reset              (const p_fsm_t fsm_inst);
 fsm_status_t fsm_hndl               (const p_fsm_t fsm_inst);
 fsm_status_t fsm_goto_state         (const p_fsm_t fsm_inst, const uint8_t state);
 uint8_t      fsm_get_state          (const p_fsm_t fsm_inst);

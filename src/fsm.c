@@ -131,6 +131,7 @@ static void fsm_exit_cur_state(const p_fsm_t fsm_inst);
 static void fsm_enter_next_state(const p_fsm_t fsm_inst);
 static void fsm_handle_cur_state(const p_fsm_t fsm_inst);
 static void fsm_manager(const p_fsm_t fsm_inst);
+static void fsm_reset_state(const p_fsm_t fsm_inst);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -259,6 +260,24 @@ static void fsm_manager(const p_fsm_t fsm_inst)
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
+*       Reset FSM states, and timing, back to initial (default) values
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_reset_state(const p_fsm_t fsm_inst)
+{
+    fsm_inst->state.cur     = 0U;
+    fsm_inst->state.next    = fsm_inst->state.cur;
+    fsm_inst->state.is_init = true;
+    fsm_inst->duration      = 0U;
+    fsm_inst->tick_prev     = 0U;
+    fsm_inst->is_init       = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
 * @} <!-- END GROUP -->
 */
 ////////////////////////////////////////////////////////////////////////////////
@@ -304,13 +323,7 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
             // Get setup
             (*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
 
-            // Init internal data
-            (*p_fsm_inst)->state.cur     = 0U;
-            (*p_fsm_inst)->state.next    = (*p_fsm_inst)->state.cur;
-            (*p_fsm_inst)->state.is_init = true;
-            (*p_fsm_inst)->duration      = 0U;
-            (*p_fsm_inst)->tick_prev     = 0U;
-            (*p_fsm_inst)->is_init       = true;
+            fsm_reset_state(*p_fsm_inst);
         }
         else
         {
@@ -341,6 +354,30 @@ fsm_status_t fsm_is_init(const p_fsm_t fsm_inst, bool * const p_is_init)
     if ( NULL != fsm_inst )
     {
         *p_is_init = fsm_inst->is_init;
+    }
+    else
+    {
+        status = eFSM_ERROR;
+    }
+
+    return status;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   Reset FSM back to its initial state without triggering any state behaviors
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       status      - Status of operation
+*/
+////////////////////////////////////////////////////////////////////////////////
+fsm_status_t fsm_reset(const p_fsm_t fsm_inst)
+{
+    fsm_status_t status = eFSM_OK;
+
+    if ( NULL != fsm_inst )
+    {
+        fsm_reset_state(fsm_inst);
     }
     else
     {
