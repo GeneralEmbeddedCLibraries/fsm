@@ -7,11 +7,18 @@ and this project/module adheres to [Semantic Versioning](https://semver.org/spec
 ---
 ## V2.0.0 - 24.08.2024
 
+### Notice
+Complete module rework, not compatible with older version!
+
 ### Added
- - Context to state handlers
+ - Ability to exchange generic data across FSM states within FSM module (Look at *fsm_get_data*, *fsm_set_data* API)
+ - Added actions for entry & exit states
+
+### Changed
+ - Remove configuration for max allowed states in FSM
+ - FSM configuration table format change
 
 ### Todo
- - Make a entry & exit possible actions to each state
  - State transition allowance & checking
 
 ---
