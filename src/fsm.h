@@ -76,6 +76,8 @@ typedef struct fsm_s * p_fsm_t;
 
 /**
  *     Pointer to FSM state function
+ *
+ * @param[in]   fsm_inst - FMS instance
  */
 typedef void (*pf_state_t)(const p_fsm_t fsm_inst);
 
