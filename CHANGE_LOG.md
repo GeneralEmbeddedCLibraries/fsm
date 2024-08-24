@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project/module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## V2.0.0 - 24.08.2024
+
+### Added
+ - Context to state handlers
+
+### Todo
+ - Make a entry & exit possible actions to each state
+ - State transition allowance & checking
+
+---
 ## V1.2.1 - 27.09.2023
 
 ### Fixing
