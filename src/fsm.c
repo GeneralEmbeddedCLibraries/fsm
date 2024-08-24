@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ziga Miklosic
+// Copyright (c) 2024 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -8,6 +8,8 @@
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
 *@date      27.09.2023
+*@author    Matej Otic
+*@email     otic.matej@dancing-bits.com
 *@version   V1.2.1
 *
 *@section Description
@@ -111,6 +113,7 @@ typedef struct fsm_s
     uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
     fsm_state_t     state;          /**<Current state of FSM */
     fsm_data_t      data;           /**<Data shared across states */
+    bool            first_entry;    /**<First entry of state */
     bool            is_init;        /**<Initialization guard */
 } fsm_t;
 
@@ -127,11 +130,11 @@ typedef struct fsm_s
 ////////////////////////////////////////////////////////////////////////////////
 // Function Prototypes
 ////////////////////////////////////////////////////////////////////////////////
-static void fsm_exit_cur_state(const p_fsm_t fsm_inst);
+static void fsm_exit_cur_state  (const p_fsm_t fsm_inst);
 static void fsm_enter_next_state(const p_fsm_t fsm_inst);
 static void fsm_handle_cur_state(const p_fsm_t fsm_inst);
-static void fsm_manager(const p_fsm_t fsm_inst);
-static void fsm_reset_state(const p_fsm_t fsm_inst);
+static void fsm_manager         (const p_fsm_t fsm_inst);
+static void fsm_reset_state     (const p_fsm_t fsm_inst);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
@@ -249,10 +252,13 @@ static void fsm_manager(const p_fsm_t fsm_inst)
 
         fsm_exit_cur_state(fsm_inst);        
         fsm_enter_next_state(fsm_inst);
+        fsm_inst->first_entry = true;
     }
+
+    // Same state
     else
     {
-        // Same state
+        fsm_inst->first_entry = false;
     }
 
     fsm_handle_cur_state(fsm_inst);
@@ -274,6 +280,7 @@ static void fsm_reset_state(const p_fsm_t fsm_inst)
     fsm_inst->duration      = 0U;
     fsm_inst->tick_prev     = 0U;
     fsm_inst->is_init       = true;
+    fsm_inst->first_entry   = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -550,6 +557,26 @@ void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data)
     {
         fsm_inst->data = data;
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Get first state entry flag
+*
+* @param[in]    fsm_inst        - FSM instance
+* @return       first_entry     - First entry into state
+*/
+////////////////////////////////////////////////////////////////////////////////
+bool fsm_get_first_entry(const p_fsm_t fsm_inst)
+{
+    bool first_entry = false;
+
+    if ( NULL != fsm_inst )
+    {
+        first_entry = fsm_inst->first_entry;
+    }
+
+    return first_entry;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ziga Miklosic
+// Copyright (c) 2024 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -7,6 +7,8 @@
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
+*@author    Matej Otic
+*@email     otic.matej@dancing-bits.com
 *@date      27.09.2023
 *@version   V1.2.1
 */
@@ -111,6 +113,7 @@ uint32_t     fsm_get_duration       (const p_fsm_t fsm_inst);
 void         fsm_reset_duration     (const p_fsm_t fsm_inst);
 fsm_data_t   fsm_get_data           (const p_fsm_t fsm_inst);
 void         fsm_set_data           (const p_fsm_t fsm_inst, const fsm_data_t data);
+bool         fsm_get_first_entry    (const p_fsm_t fsm_inst);
 
 #endif // __FSM_H_
 
