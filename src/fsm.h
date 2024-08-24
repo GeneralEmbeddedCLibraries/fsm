@@ -53,7 +53,7 @@ typedef enum
 /**
  *     Pointer to FSM state function
  */
-typedef void (*pf_state_t)(void * context);
+typedef void (*pf_state_t)(void * p_ctx);
 
 /**
  *     State functions
@@ -84,7 +84,7 @@ typedef struct fsm_s * p_fsm_t;
 ////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_init               (p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg);
 fsm_status_t fsm_is_init            (p_fsm_t fsm_inst, bool * const p_is_init);
-fsm_status_t fsm_hndl               (p_fsm_t fsm_inst, void * context);
+fsm_status_t fsm_hndl               (p_fsm_t fsm_inst, void * p_ctx);
 fsm_status_t fsm_goto_state         (p_fsm_t fsm_inst, const uint8_t state);
 uint8_t      fsm_get_state          (const p_fsm_t fsm_inst);
 uint32_t     fsm_get_duration       (const p_fsm_t fsm_inst);
