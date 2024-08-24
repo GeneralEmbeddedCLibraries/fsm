@@ -286,10 +286,11 @@ fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
 * @note     Each instance of FSM must call its own handler!
 *
 * @param[in]    fsm_inst    - FSM instance
+* @param[in]    context     - Context
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
+fsm_status_t fsm_hndl(p_fsm_t fsm_inst, void * context)
 {
     fsm_status_t status = eFSM_OK;
 
@@ -303,7 +304,7 @@ fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
             // Execute current FSM state
             if ( NULL != fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func )
             {
-                fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func();
+                fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func( context );
             }
             else
             {
