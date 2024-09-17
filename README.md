@@ -22,13 +22,17 @@ root/middleware/fsm/fsm/"module_space"
  ## **API**
 | API Functions | Description | Prototype |
 | --- | ----------- | ----- |
-| **fsm_init** | Initialization of FSM module | fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg) |****
-| **fsm_is_init** | Get initialization flag | fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init) |
-| **fsm_hndl** | FSM main handler | fsm_status_t fsm_hndl(p_fsm_t fsm_inst) |
-| **fsm_goto_state** | Change FSM state | fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state) |
-| **fsm_get_state** | Get current FSM state | uint8_t fsm_get_state(const p_fsm_t fsm_inst) |
-| **fsm_get_duration** | Get time spend in state in miliseconds | uint32_t fsm_get_duration(const p_fsm_t fsm_inst) |
-| **fsm_get_first_entry** | Get first time state entry flag | bool fsm_get_first_entry(const p_fsm_t fsm_inst) |
+| **fsm_init**              | Initialization of FSM module              | fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg) |****
+| **fsm_is_init**           | Get initialization flag                   | fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init) |
+| **fsm_reset**             | Reset FSM handler                         | fsm_status_t fsm_reset(const p_fsm_t fsm_inst) |
+| **fsm_hndl**              | FSM handler                               | fsm_status_t fsm_hndl(p_fsm_t fsm_inst) |
+| **fsm_goto_state**        | Change FSM state                          | fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state) |
+| **fsm_get_state**         | Get current FSM state                     | uint8_t fsm_get_state(const p_fsm_t fsm_inst) |
+| **fsm_get_duration**      | Get time spend in state in miliseconds    | uint32_t fsm_get_duration(const p_fsm_t fsm_inst) |
+| **fsm_reset_duration**    | Reset time spend in state                 | uint32_t fsm_get_duration(const p_fsm_t fsm_inst) |
+| **fsm_get_data**          | Get (read) data from FSM                  | fsm_data_t fsm_get_data(const p_fsm_t fsm_inst) |
+| **fsm_set_data**          | Set (write) data to FSM                   | void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data) |
+| **fsm_get_first_entry**   | Get first time state entry flag           | bool fsm_get_first_entry(const p_fsm_t fsm_inst) |
 
 ## **Usage**
 
@@ -40,12 +44,11 @@ root/middleware/fsm/fsm/"module_space"
 
 | Macros | Description | 
 | ------------- | ----------- |
-| FSM_CFG_STATE_MAX | Maximum number of all states combined |
-| FSM_GET_SYSTICK | Get system timetick in 32-bit form |
-| FSM_CFG_DEBUG_EN | Enable/Disable debug mode |
-| FSM_CFG_ASSERT_EN | Enable/Disable assertions |
-| FSM_DBG_PRINT | Printing to debug channel |
-| FSM_ASSERT | Assert actions definition |
+| FSM_GET_SYSTICK       | Get system timetick in 32-bit form |
+| FSM_CFG_DEBUG_EN      | Enable/Disable debug mode |
+| FSM_CFG_ASSERT_EN     | Enable/Disable assertions |
+| FSM_DBG_PRINT         | Printing to debug channel |
+| FSM_ASSERT            | Assert actions definition |
 
 3. Create enumeration for FSM states
 ```C
@@ -69,20 +72,16 @@ typedef enum
 /**
  * 	APP FSM State Configurations
  */
-const static fsm_cfg_t g_fsm_cfg_table =
+static const fsm_cfg_t g_boot_fsm_cfg_table =
 {
-    /**
-     * 		State functions
-     *
-     * 	NOTE: Sequence matters!
-     */
-    .state = 
-    { 	
-        // NOTE: List function handlers in same sequence as "app_fsm_state_t"! 
-        [eAPP_FSM_POR]      = { .func = NULL, 	                .name = "POR" },    // Example of not using POR handler
-        [eAPP_FSM_POT]      = { .func = app_fsm_pot_mode_hndl, 	.name = "POT" },
-        [eAPP_FSM_SSI]      = { .func = app_fsm_ssi_mode_hndl, 	.name = "SSI" },
-        [eAPP_FSM_HALL]     = { .func = app_fsm_hall_mode_hndl, .name = "HALL" },
+    .p_states = (fsm_state_cfg_t[])
+    {
+        // FSM state           On state entry handler        Normal handler                         On state exit handler       State name
+        // -------------------------------------------------------------------------------------------------------------------------------------
+        [eAPP_FSM_POR]      = {.on_entry=NULL,              .on_activity=NULL,                      .on_exit=NULL,              .name="POR"     },
+        [eAPP_FSM_POT]      = {.on_entry=NULL,              .on_activity=app_fsm_pot_mode_hndl,     .on_exit=NULL,              .name="POT"     },
+        [eAPP_FSM_SSI]      = {.on_entry=NULL,              .on_activity=app_fsm_ssi_mode_hndl,     .on_exit=NULL,              .name="SSI"     },
+        [eAPP_FSM_HALL]     = {.on_entry=NULL,              .on_activity=app_fsm_hall_mode_hndl,    .on_exit=NULL,              .name="HAL"     },
     },
     .name   = "App FSM",
     .num_of = eAPP_FSM_NUM_OF,
@@ -143,7 +142,7 @@ switch( mode )
 
 Checking first entry:
 ```C
-static void app_fsm_hall_mode_hndl(void)
+static void app_fsm_hall_mode_hndl(const p_fsm_t fsm_inst)
 {
     // First entry
     if ( true == fsm_get_first_entry( g_app_fsm ))
