@@ -93,9 +93,9 @@ typedef struct
  */
 typedef struct
 {
-    fsm_state_cfg_t * p_states; /**<Pointer to states of FSM */
-    const char *    name;       /**<Name of FSM machine */
-    uint8_t         num_of;     /**<Number of all states */
+    const fsm_state_cfg_t * p_states;   /**<Pointer to states of FSM */
+    const char *            name;       /**<Name of FSM machine */
+    uint8_t                 num_of;     /**<Number of all states */
 } fsm_cfg_t;
 
 ////////////////////////////////////////////////////////////////////////////////
