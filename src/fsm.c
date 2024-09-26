@@ -7,10 +7,10 @@
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      27.09.2023
 *@author    Matej Otic
 *@email     otic.matej@dancing-bits.com
-*@version   V1.2.1
+*@date      26.09.2024
+*@version   V2.0.0
 *
 *@section Description
 *
@@ -125,7 +125,6 @@ typedef struct fsm_s
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function Prototypes

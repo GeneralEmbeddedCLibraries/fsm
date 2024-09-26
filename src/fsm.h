@@ -9,8 +9,8 @@
 *@email     ziga.miklosic@gmail.com
 *@author    Matej Otic
 *@email     otic.matej@dancing-bits.com
-*@date      27.09.2023
-*@version   V1.2.1
+*@date      26.09.2024
+*@version   V2.0.0
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -38,9 +38,9 @@
 /**
  *     Module version
  */
-#define FSM_VER_MAJOR       ( 1 )
-#define FSM_VER_MINOR       ( 2 )
-#define FSM_VER_DEVELOP     ( 1 )
+#define FSM_VER_MAJOR       ( 2 )
+#define FSM_VER_MINOR       ( 0 )
+#define FSM_VER_DEVELOP     ( 0 )
 
 /**
  *     FSM status
