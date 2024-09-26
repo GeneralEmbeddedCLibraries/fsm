@@ -7,8 +7,10 @@
 * @brief    Finite State Machine (FSM) Configurations
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      27.09.2023
-*@version   V1.2.1
+*@author    Matej Otic
+*@email     otic.matej@dancing-bits.com
+*@date      26.09.2024
+*@version   V2.0.0
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -27,14 +29,14 @@
 
 // USER INCLUDE BEGIN...
 
-// HAL
-#include "stm32g4xx_hal.h"
-
 // Global project settings
 #include "config/proj_cfg.h"
 
 // Debug communication port
 #include "middleware/cli/cli/src/cli.h"
+
+// For timeout functionality
+#include "application/sys.h"
 
 // USER INCLUDE END...
 
@@ -45,16 +47,11 @@
 // USER CODE BEGIN...
 
 /**
- *  Maximum number of all FSM states
- */
-#define FSM_CFG_STATE_MAX               ( 8 )
-
-/**
  *  Get system timetick in 32-bit unsigned integer form
  *
  *  Unit: ms
  */
-#define FSM_GET_SYSTICK()               ((uint32_t) HAL_GetTick())
+#define FSM_GET_SYSTICK()               ( sys_systick_get_ms())
 
 /**
  *    Enable/Disable debug mode

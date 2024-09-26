@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ziga Miklosic
+// Copyright (c) 2024 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -7,8 +7,10 @@
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      27.09.2023
-*@version   V1.2.1
+*@author    Matej Otic
+*@email     otic.matej@dancing-bits.com
+*@date      26.09.2024
+*@version   V2.0.0
 *
 *@section Description
 *
@@ -24,31 +26,31 @@
 *    //         VARIABLES
 *    // ------------------------------------
 *
-*    //     APP FSM State Configurations
-*    const static fsm_cfg_t g_fsm_cfg_table =
+*    //  APP FSM State Configurations
+*    static const fsm_cfg_t g_boot_fsm_cfg_table =
 *    {
-*        //         State functions
-*        //
-*        //     NOTE: Sequence matters!
-*        .func = {      NULL,                        // eAPP_FSM_POR - No need for function
-*                       app_fsm_pot_mode_hndl,        // eAPP_FSM_POT
-*                       app_fsm_ssi_mode_hndl,        // eAPP_FSM_SSI
-*                       app_fsm_hall_mode_hndl,        // eAPP_FSM_HALL
-*                },
-*        .name = "App FSM",
+*        .p_states = (fsm_state_cfg_t[])
+*        {
+*            // FSM state           On state entry handler        Normal handler                         On state exit handler       State name
+*            // -------------------------------------------------------------------------------------------------------------------------------------
+*            [eAPP_FSM_POR]      = {.on_entry=NULL,              .on_activity=NULL,                      .on_exit=NULL,              .name="POR"     },
+*            [eAPP_FSM_POT]      = {.on_entry=NULL,              .on_activity=app_fsm_pot_mode_hndl,     .on_exit=NULL,              .name="POT"     },
+*            [eAPP_FSM_SSI]      = {.on_entry=NULL,              .on_activity=app_fsm_ssi_mode_hndl,     .on_exit=NULL,              .name="SSI"     },
+*            [eAPP_FSM_HALL]     = {.on_entry=NULL,              .on_activity=app_fsm_hall_mode_hndl,    .on_exit=NULL,              .name="HAL"     },
+*        },
+*        .name   = "App FSM",
 *        .num_of = eAPP_FSM_NUM_OF,
 *    };
 *
 *    //     App FSM instance
 *    static p_fsm_t g_app_fsm = NULL;
 *
-*
 *   // ------------------------------------
 *    //         PROGRAM
 *    // ------------------------------------
 *
 *    // 1. Init
-*    fsm_init( &g_app_fsm, &g_fsm_cfg_table )
+*    fsm_init( &g_app_fsm, &g_fsm_cfg_table );
 *
 *    // 2. Handle fsm
 *    @x_ms
@@ -96,6 +98,7 @@
  */
 typedef struct
 {
+    bool is_init;   /**<Is current state initial state? */
     uint8_t cur;    /**<Current state */
     uint8_t next;   /**<Next/Requested state */
 } fsm_state_t;
@@ -109,6 +112,7 @@ typedef struct fsm_s
     uint32_t        duration;       /**<Time duration in ms */
     uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
     fsm_state_t     state;          /**<Current state of FSM */
+    fsm_data_t      data;           /**<Data shared across states */
     bool            first_entry;    /**<First entry of state */
     bool            is_init;        /**<Initialization guard */
 } fsm_t;
@@ -122,16 +126,85 @@ typedef struct fsm_s
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Function Prototypes
 ////////////////////////////////////////////////////////////////////////////////
-static void fsm_manager(p_fsm_t fsm_inst);
+static void fsm_exit_cur_state  (const p_fsm_t fsm_inst);
+static void fsm_enter_next_state(const p_fsm_t fsm_inst);
+static void fsm_handle_cur_state(const p_fsm_t fsm_inst);
+static void fsm_manager         (const p_fsm_t fsm_inst);
+static void fsm_reset_state     (const p_fsm_t fsm_inst);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Exit current FSM state by calling its exit function
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_exit_cur_state(const p_fsm_t fsm_inst)
+{
+    // Execute on exit actions
+    if ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.cur].on_exit )
+    {
+        fsm_inst->p_cfg->p_states[fsm_inst->state.cur].on_exit(fsm_inst);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Enter next FSM state by calling its entry function
+*
+*       This function resets state duration before entry is executed.
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_enter_next_state(const p_fsm_t fsm_inst)
+{
+    fsm_inst->tick_prev = FSM_GET_SYSTICK();
+    fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
+
+    // Execute on entry actions
+    if ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].on_entry )
+    {
+        fsm_inst->p_cfg->p_states[fsm_inst->state.next].on_entry(fsm_inst);
+    }
+
+    fsm_inst->state.cur = fsm_inst->state.next;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Handle current FSM state by calling its activity function
+*
+*       This function increments state duration and saturates it before activity
+*       is executed.
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_handle_cur_state(const p_fsm_t fsm_inst)
+{
+    // Accumulate time
+    const uint32_t tick_now = FSM_GET_SYSTICK();
+    fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
+    fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
+    fsm_inst->tick_prev = tick_now;
+
+    // Execute current state
+    if ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.cur].on_activity )
+    {
+        fsm_inst->p_cfg->p_states[fsm_inst->state.cur].on_activity(fsm_inst);
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -141,47 +214,85 @@ static void fsm_manager(p_fsm_t fsm_inst);
 * @return       void
 */
 ////////////////////////////////////////////////////////////////////////////////
-static void fsm_manager(p_fsm_t fsm_inst)
+static void fsm_manager(const p_fsm_t fsm_inst)
 {
-    // State change
-    if ( fsm_inst->state.cur != fsm_inst->state.next )
+    // Initial state
+    if (fsm_inst->state.is_init)
     {
         #if ( FSM_CFG_DEBUG_EN )
-            if  (   ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.cur].name )
-                &&  ( NULL != fsm_inst->p_cfg->state[fsm_inst->state.next].name ))
+            if (NULL != fsm_inst->p_cfg->name)
             {
-                FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->state[fsm_inst->state.cur].name, fsm_inst->p_cfg->state[fsm_inst->state.next].name );
-            }
-            else
-            {
-                FSM_DBG_PRINT( "%s transition: %d -> %d", fsm_inst->p_cfg->name, fsm_inst->state.cur, fsm_inst->state.next );
+                if  ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].name )
+                {
+                    FSM_DBG_PRINT( "%s transition: 'initial' -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->p_states[fsm_inst->state.next].name );
+                }
+                else
+                {
+                    FSM_DBG_PRINT( "%s transition: initial -> %d", fsm_inst->p_cfg->name, fsm_inst->state.next );
+                }
             }
         #endif
 
-        fsm_inst->state.cur     = fsm_inst->state.next;
-        fsm_inst->first_entry   = true;
-        fsm_inst->duration      = 0.0f;
+        fsm_inst->state.is_init = false;
 
-        // Store tick
-        fsm_inst->tick_prev = FSM_GET_SYSTICK();
+        // Execute entry of next state only; initial state does not have an exit activity
+        fsm_enter_next_state(fsm_inst);
+    }
+
+    // State change
+    else if ( fsm_inst->state.cur != fsm_inst->state.next )
+    {
+        #if ( FSM_CFG_DEBUG_EN )
+            if (NULL != fsm_inst->p_cfg->name)
+            {
+                if  (   ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name )
+                    &&  ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].name ))
+                {
+                    FSM_DBG_PRINT( "%s transition: %s -> %s", fsm_inst->p_cfg->name, fsm_inst->p_cfg->p_states[fsm_inst->state.cur].name, fsm_inst->p_cfg->p_states[fsm_inst->state.next].name );
+                }
+                else
+                {
+                    FSM_DBG_PRINT( "%s transition: %d -> %d", fsm_inst->p_cfg->name, fsm_inst->state.cur, fsm_inst->state.next );
+                }
+            }
+        #endif
+
+        // Execute on exit state handle
+        fsm_exit_cur_state(fsm_inst);
+
+        // Change state and execute on entry handle
+        fsm_enter_next_state(fsm_inst);
+
+        // First entry to state
+        fsm_inst->first_entry = true;
     }
 
     // Same state
     else
     {
-        fsm_inst->state.next    = fsm_inst->state.cur;
-        fsm_inst->first_entry   = false;
-
-        // Get current time
-        const uint32_t tick_now = FSM_GET_SYSTICK();
-
-        // Accumulate time
-        fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
-        fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
-
-        // Store tick
-        fsm_inst->tick_prev = tick_now;
+        fsm_inst->first_entry = false;
     }
+
+    fsm_handle_cur_state(fsm_inst);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Reset FSM states, and timing, back to initial (default) values
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+static void fsm_reset_state(const p_fsm_t fsm_inst)
+{
+    fsm_inst->state.cur     = 0U;
+    fsm_inst->state.next    = fsm_inst->state.cur;
+    fsm_inst->state.is_init = true;
+    fsm_inst->duration      = 0U;
+    fsm_inst->tick_prev     = 0U;
+    fsm_inst->is_init       = true;
+    fsm_inst->first_entry   = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +314,7 @@ static void fsm_manager(p_fsm_t fsm_inst)
 /**
 *   Initialise FSMs
 *
-* @param[out]    p_fsm_inst - Pointer to FSM instance
+* @param[out]   p_fsm_inst  - Pointer to FSM instance
 * @param[in]    p_cfg       - Pointer to FSM configuration table
 * @return       status      - Status of initialisation
 */
@@ -222,24 +333,17 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
         *p_fsm_inst = malloc( sizeof( fsm_t ));
 
         FSM_ASSERT( NULL != *p_fsm_inst );
-        FSM_ASSERT( p_cfg->num_of < FSM_CFG_STATE_MAX );
         FSM_ASSERT( p_cfg->num_of > 0  );
 
         // Check if allocation succeed
         if  (   ( NULL != *p_fsm_inst )
-            &&  ( p_cfg->num_of < FSM_CFG_STATE_MAX )
             &&  ( p_cfg->num_of > 0 ))
         {
             // Get setup
             (*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
 
-            // Init internal data
-            (*p_fsm_inst)->state.cur    = 0U;
-            (*p_fsm_inst)->state.next   = (*p_fsm_inst)->state.cur;
-            (*p_fsm_inst)->first_entry  = false;
-            (*p_fsm_inst)->duration     = 0U;
-            (*p_fsm_inst)->tick_prev    = 0U;
-            (*p_fsm_inst)->is_init      = true;
+            // Init FSM to default
+            fsm_reset_state(*p_fsm_inst);
         }
         else
         {
@@ -263,13 +367,37 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
+fsm_status_t fsm_is_init(const p_fsm_t fsm_inst, bool * const p_is_init)
 {
     fsm_status_t status = eFSM_OK;
 
     if ( NULL != fsm_inst )
     {
         *p_is_init = fsm_inst->is_init;
+    }
+    else
+    {
+        status = eFSM_ERROR;
+    }
+
+    return status;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   Reset FSM back to its initial state without triggering any state behaviors
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       status      - Status of operation
+*/
+////////////////////////////////////////////////////////////////////////////////
+fsm_status_t fsm_reset(const p_fsm_t fsm_inst)
+{
+    fsm_status_t status = eFSM_OK;
+
+    if ( NULL != fsm_inst )
+    {
+        fsm_reset_state( fsm_inst );
     }
     else
     {
@@ -289,37 +417,28 @@ fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init)
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
+fsm_status_t fsm_hndl(const p_fsm_t fsm_inst)
 {
     fsm_status_t status = eFSM_OK;
+
+    FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
         if ( true == fsm_inst->is_init )
         {
-            // Manage FSM
             fsm_manager( fsm_inst );
-
-            // Execute current FSM state
-            if ( NULL != fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func )
-            {
-                fsm_inst->p_cfg->state[ fsm_inst->state.cur ].func();
-            }
-            else
-            {
-                FSM_ASSERT( 0 );
-            }
         }
         else
         {
             status = eFSM_ERROR_INIT;
+            FSM_ASSERT(0); // USAGE ERROR: Handling FSM before init!
         }
     }
     else
     {
         status = eFSM_ERROR;
     }
-
 
     return status;
 }
@@ -333,7 +452,7 @@ fsm_status_t fsm_hndl(p_fsm_t fsm_inst)
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state)
+fsm_status_t fsm_goto_state(const p_fsm_t fsm_inst, const uint8_t state)
 {
     fsm_status_t status = eFSM_OK;
 
@@ -395,6 +514,64 @@ uint32_t fsm_get_duration(const p_fsm_t fsm_inst)
     }
 
     return duration;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Reset FSM state time duration
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+void fsm_reset_duration(const p_fsm_t fsm_inst)
+{
+    FSM_ASSERT( NULL != fsm_inst );
+
+    if ( NULL != fsm_inst )
+    {
+        fsm_inst->duration = 0;
+        fsm_inst->tick_prev = FSM_GET_SYSTICK();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Get FSM shared data
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       data        - Data
+*/
+////////////////////////////////////////////////////////////////////////////////
+fsm_data_t fsm_get_data(const p_fsm_t fsm_inst)
+{
+    fsm_data_t data = {0};
+
+    FSM_ASSERT( NULL != fsm_inst );
+
+    if ( NULL != fsm_inst )
+    {
+        data = fsm_inst->data;
+    }
+
+    return data;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Set FSM shared data
+*
+* @param[in]    fsm_inst    - FSM instance
+* @param[in]    data        - Data
+* @return       void
+*/
+////////////////////////////////////////////////////////////////////////////////
+void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data)
+{
+    if ( NULL != fsm_inst )
+    {
+        fsm_inst->data = data;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
