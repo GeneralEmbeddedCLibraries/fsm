@@ -171,13 +171,14 @@ static void fsm_enter_next_state(const p_fsm_t fsm_inst)
     fsm_inst->tick_prev = FSM_GET_SYSTICK();
     fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
 
+    // Change state before entry callback
+    fsm_inst->state.cur = fsm_inst->state.next;
+
     // Execute on entry actions
     if ( NULL != fsm_inst->p_cfg->p_states[fsm_inst->state.next].on_entry )
     {
         fsm_inst->p_cfg->p_states[fsm_inst->state.next].on_entry(fsm_inst);
     }
-
-    fsm_inst->state.cur = fsm_inst->state.next;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
