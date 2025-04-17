@@ -274,7 +274,11 @@ static void fsm_manager(const p_fsm_t fsm_inst)
         fsm_inst->first_entry = false;
     }
 
-    fsm_handle_cur_state(fsm_inst);
+    // Check if state didn't change in entry callback
+    if ( fsm_inst->state.cur == fsm_inst->state.next )
+    {
+        fsm_handle_cur_state(fsm_inst);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,7 @@ Complete module rework, not compatible with older version!
 
 ### Changed
  - State changed before calling "on_entry" callback
+ - In case state change in "on_entry" callback don't execute "on_activity" handle
 
 ### Todo
  - State transition allowance & checking
