@@ -1,4 +1,4 @@
-// Copyright (c) 2023 Ziga Miklosic
+// Copyright (c) 2025 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -7,8 +7,8 @@
 * @brief    Finite State Machine (FSM) Configurations
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      27.09.2023
-*@version   V1.2.1
+*@date      24.04.2025
+*@version   V2.1.0
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -28,7 +28,7 @@
 // USER INCLUDE BEGIN...
 
 // HAL
-#include "stm32g4xx_hal.h"
+#include "stm32l4xx_hal.h"
 
 // Global project settings
 #include "config/proj_cfg.h"
@@ -54,7 +54,7 @@
  *
  *  Unit: ms
  */
-#define FSM_GET_SYSTICK()               ((uint32_t) HAL_GetTick())
+#define FSM_GET_SYSTICK()               ( sys_systick_get_ms())
 
 /**
  *    Enable/Disable debug mode
