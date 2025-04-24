@@ -5,13 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project/module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
-## V2.1.0 - xx.xx.2025
-
-### Notice
-Complete module rework, not compatible with older version!
-
-### Added
- - 
+## V2.1.0 - 24.04.2025
 
 ### Changed
  - State changed before calling "on_entry" callback

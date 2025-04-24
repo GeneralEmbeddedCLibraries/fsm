@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Ziga Miklosic
+// Copyright (c) 2025 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -9,8 +9,8 @@
 *@email     ziga.miklosic@gmail.com
 *@author    Matej Otic
 *@email     otic.matej@dancing-bits.com
-*@date      26.09.2024
-*@version   V2.0.0
+*@date      24.04.2025
+*@version   V2.1.0
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -39,7 +39,7 @@
  *     Module version
  */
 #define FSM_VER_MAJOR       ( 2 )
-#define FSM_VER_MINOR       ( 0 )
+#define FSM_VER_MINOR       ( 1 )
 #define FSM_VER_DEVELOP     ( 0 )
 
 /**
