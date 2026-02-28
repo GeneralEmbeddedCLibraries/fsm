@@ -102,15 +102,42 @@ typedef struct
     uint8_t                 num_of;     /**<Number of all states */
 } fsm_cfg_t;
 
+/**
+ *     FSM States
+ */
+typedef struct
+{
+    bool is_init;   /**<Is current state initial state? */
+    uint8_t cur;    /**<Current state */
+    uint8_t next;   /**<Next/Requested state */
+    uint8_t prev;   /**<Previous state */
+} fsm_state_t;
+
+/**
+ *     FSM data
+ */
+typedef struct fsm_s
+{
+    fsm_cfg_t *     p_cfg;          /**<FSM setup */
+    uint32_t        duration;       /**<Time duration in ms */
+    uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
+    fsm_state_t     state;          /**<Current state of FSM */
+    fsm_data_t      data;           /**<Data shared across states */
+    bool            first_entry;    /**<First entry of state */
+    bool            is_init;        /**<Initialization guard */
+} fsm_t;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_init               (p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg);
+fsm_status_t fsm_init_static        (fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg);
 fsm_status_t fsm_is_init            (const p_fsm_t fsm_inst, bool * const p_is_init);
 fsm_status_t fsm_reset              (const p_fsm_t fsm_inst);
 fsm_status_t fsm_hndl               (const p_fsm_t fsm_inst);
 fsm_status_t fsm_goto_state         (const p_fsm_t fsm_inst, const uint8_t state);
 uint8_t      fsm_get_state          (const p_fsm_t fsm_inst);
+uint8_t      fsm_get_prev_state     (const p_fsm_t fsm_inst);
 uint32_t     fsm_get_duration       (const p_fsm_t fsm_inst);
 void         fsm_reset_duration     (const p_fsm_t fsm_inst);
 fsm_data_t   fsm_get_data           (const p_fsm_t fsm_inst);

@@ -45,11 +45,6 @@
 // USER CODE BEGIN...
 
 /**
- *  Maximum number of all FSM states
- */
-#define FSM_CFG_STATE_MAX               ( 8 )
-
-/**
  *  Get system timetick in 32-bit unsigned integer form
  *
  *  Unit: ms

@@ -87,35 +87,10 @@
 #include <stdlib.h>
 
 #include "fsm.h"
-#include "../../fsm_cfg.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
-
-/**
- *     FSM States
- */
-typedef struct
-{
-    bool is_init;   /**<Is current state initial state? */
-    uint8_t cur;    /**<Current state */
-    uint8_t next;   /**<Next/Requested state */
-} fsm_state_t;
-
-/**
- *     FSM data
- */
-typedef struct fsm_s
-{
-    fsm_cfg_t *     p_cfg;          /**<FSM setup */
-    uint32_t        duration;       /**<Time duration in ms */
-    uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
-    fsm_state_t     state;          /**<Current state of FSM */
-    fsm_data_t      data;           /**<Data shared across states */
-    bool            first_entry;    /**<First entry of state */
-    bool            is_init;        /**<Initialization guard */
-} fsm_t;
 
 /**
  *     Limit loop counts
@@ -172,6 +147,7 @@ static void fsm_enter_next_state(const p_fsm_t fsm_inst)
     fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
 
     // Change state before entry callback
+    fsm_inst->state.prev = fsm_inst->state.cur;
     fsm_inst->state.cur = fsm_inst->state.next;
 
     // Execute on entry actions
@@ -293,6 +269,7 @@ static void fsm_reset_state(const p_fsm_t fsm_inst)
 {
     fsm_inst->state.cur     = 0U;
     fsm_inst->state.next    = fsm_inst->state.cur;
+    fsm_inst->state.prev    = fsm_inst->state.cur;
     fsm_inst->state.is_init = true;
     fsm_inst->duration      = 0U;
     fsm_inst->tick_prev     = 0U;
@@ -361,6 +338,18 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
     }
 
     return status;
+}
+
+
+fsm_status_t fsm_init_static(fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg)
+{
+    // Unused
+    (void)fsm_inst;
+    (void)p_cfg;
+
+    // TODO: Implement following logic
+
+    return eFSM_OK;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -494,6 +483,28 @@ uint8_t fsm_get_state(const p_fsm_t fsm_inst)
     if ( NULL != fsm_inst )
     {
         state = fsm_inst->state.cur;
+    }
+
+    return state;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Get previous FSM state
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       state       - Previous state of FSM
+*/
+////////////////////////////////////////////////////////////////////////////////
+uint8_t fsm_get_prev_state(const p_fsm_t fsm_inst)
+{
+    uint8_t state = 0U;
+
+    FSM_ASSERT( NULL != fsm_inst );
+
+    if ( NULL != fsm_inst )
+    {
+        state = fsm_inst->state.prev;
     }
 
     return state;
