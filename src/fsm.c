@@ -212,6 +212,9 @@ static void fsm_manager(const p_fsm_t fsm_inst)
 
         fsm_inst->state.is_init = false;
 
+        // First entry to state from initial state
+        fsm_inst->first_entry = true;
+
         // Execute entry of next state only; initial state does not have an exit activity
         fsm_enter_next_state(fsm_inst);
     }
