@@ -95,7 +95,7 @@
 /**
  *     Limit loop counts
  */
-#define FSM_LIMIT_DURATION(cnt)    (( cnt >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
+#define FSM_LIMIT_DURATION(cnt)    ((( cnt ) >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -325,7 +325,7 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
             &&  ( p_cfg->num_of > 0 ))
         {
             // Get setup
-            (*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
+            (*p_fsm_inst)->p_cfg = p_cfg;
 
             // Init FSM to default
             fsm_reset_state(*p_fsm_inst);
@@ -344,15 +344,47 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   Initialise FSM using caller-provided (static) storage
+*
+* @param[out]   fsm_inst    - Pointer to caller-provided FSM instance
+* @param[in]    p_cfg       - Pointer to FSM configuration table
+* @return       status      - Status of initialisation
+*/
+////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_init_static(fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg)
 {
-    // Unused
-    (void)fsm_inst;
-    (void)p_cfg;
+    fsm_status_t status = eFSM_OK;
 
-    // TODO: Implement following logic
+    FSM_ASSERT( NULL != fsm_inst );
+    FSM_ASSERT( NULL != p_cfg );
 
-    return eFSM_OK;
+    if     (    ( NULL != fsm_inst )
+        &&    ( NULL != p_cfg ))
+    {
+        FSM_ASSERT( p_cfg->num_of > 0 );
+
+        // Check if configuration is valid
+        if ( p_cfg->num_of > 0 )
+        {
+            // Get setup
+            fsm_inst->p_cfg = p_cfg;
+
+            // Init FSM to default
+            fsm_reset_state( fsm_inst );
+        }
+        else
+        {
+            status = eFSM_ERROR_INIT;
+        }
+    }
+    else
+    {
+        status = eFSM_ERROR;
+    }
+
+    return status;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -364,20 +396,16 @@ fsm_status_t fsm_init_static(fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg)
 * @return       status      - Status of operation
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_is_init(const p_fsm_t fsm_inst, bool * const p_is_init)
+bool fsm_is_init(const p_fsm_t fsm_inst)
 {
-    fsm_status_t status = eFSM_OK;
+    FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
-        *p_is_init = fsm_inst->is_init;
-    }
-    else
-    {
-        status = eFSM_ERROR;
+        return fsm_inst->is_init;
     }
 
-    return status;
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -391,6 +419,8 @@ fsm_status_t fsm_is_init(const p_fsm_t fsm_inst, bool * const p_is_init)
 fsm_status_t fsm_reset(const p_fsm_t fsm_inst)
 {
     fsm_status_t status = eFSM_OK;
+
+    FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
@@ -587,6 +617,8 @@ fsm_data_t fsm_get_data(const p_fsm_t fsm_inst)
 ////////////////////////////////////////////////////////////////////////////////
 void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data)
 {
+    FSM_ASSERT( NULL != fsm_inst );
+
     if ( NULL != fsm_inst )
     {
         fsm_inst->data = data;
@@ -604,6 +636,8 @@ void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data)
 bool fsm_get_first_entry(const p_fsm_t fsm_inst)
 {
     bool first_entry = false;
+
+    FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {

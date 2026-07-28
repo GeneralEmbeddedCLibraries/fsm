@@ -118,7 +118,7 @@ typedef struct
  */
 typedef struct fsm_s
 {
-    fsm_cfg_t *     p_cfg;          /**<FSM setup */
+    const fsm_cfg_t * p_cfg;        /**<FSM setup */
     uint32_t        duration;       /**<Time duration in ms */
     uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
     fsm_state_t     state;          /**<Current state of FSM */
@@ -132,7 +132,7 @@ typedef struct fsm_s
 ////////////////////////////////////////////////////////////////////////////////
 fsm_status_t fsm_init               (p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg);
 fsm_status_t fsm_init_static        (fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg);
-fsm_status_t fsm_is_init            (const p_fsm_t fsm_inst, bool * const p_is_init);
+bool         fsm_is_init            (const p_fsm_t fsm_inst);
 fsm_status_t fsm_reset              (const p_fsm_t fsm_inst);
 fsm_status_t fsm_hndl               (const p_fsm_t fsm_inst);
 fsm_status_t fsm_goto_state         (const p_fsm_t fsm_inst, const uint8_t state);
