@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Ziga Miklosic
+// Copyright (c) 2026 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -9,8 +9,8 @@
 *@email     ziga.miklosic@gmail.com
 *@author    Matej Otic
 *@email     otic.matej@dancing-bits.com
-*@date      24.04.2025
-*@version   V2.1.0
+*@date      28.07.2026
+*@version   V2.2.0
 *
 *@section Description
 *
@@ -509,16 +509,14 @@ fsm_status_t fsm_goto_state(const p_fsm_t fsm_inst, const uint8_t state)
 ////////////////////////////////////////////////////////////////////////////////
 uint8_t fsm_get_state(const p_fsm_t fsm_inst)
 {
-    uint8_t state = 0U;
-
     FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
-        state = fsm_inst->state.cur;
+        return fsm_inst->state.cur;
     }
 
-    return state;
+    return 0U;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -531,16 +529,14 @@ uint8_t fsm_get_state(const p_fsm_t fsm_inst)
 ////////////////////////////////////////////////////////////////////////////////
 uint8_t fsm_get_prev_state(const p_fsm_t fsm_inst)
 {
-    uint8_t state = 0U;
-
     FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
-        state = fsm_inst->state.prev;
+        return fsm_inst->state.prev;
     }
 
-    return state;
+    return 0U;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -553,16 +549,14 @@ uint8_t fsm_get_prev_state(const p_fsm_t fsm_inst)
 ////////////////////////////////////////////////////////////////////////////////
 uint32_t fsm_get_duration(const p_fsm_t fsm_inst)
 {
-    uint32_t duration = 0;
-
     FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
-        duration = fsm_inst->duration;
+        return fsm_inst->duration;
     }
 
-    return duration;
+    return 0U;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
