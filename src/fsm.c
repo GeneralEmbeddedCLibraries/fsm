@@ -92,11 +92,6 @@
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- *     Duration saturation limit
- */
-#define FSM_DURATION_MAX            ( 0x1FFFFFFFUL )
-
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,8 +156,8 @@ static void fsm_enter_next_state(const p_fsm_t fsm_inst)
 /**
 *       Handle current FSM state by calling its activity function
 *
-*       This function increments state duration and saturates it before activity
-*       is executed.
+*       This function increments state duration, guarding against unsigned
+*       overflow, before activity is executed.
 *
 * @param[in]    fsm_inst    - FSM instance
 * @return       void
@@ -172,14 +167,14 @@ static void fsm_handle_cur_state(const p_fsm_t fsm_inst)
 {
     // Accumulate time
     const uint32_t tick_now = FSM_GET_SYSTICK();
-    fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
+    const uint32_t tick_dlt = tick_now - fsm_inst->tick_prev;
 
-    // Saturate duration
-    if ( fsm_inst->duration >= FSM_DURATION_MAX )
+    // Check for overflow
+    if (( fsm_inst->duration + tick_dlt ) > fsm_inst->duration )
     {
-        fsm_inst->duration = FSM_DURATION_MAX;
+        fsm_inst->duration += tick_dlt; 
     }
-
+    
     fsm_inst->tick_prev = tick_now;
 
     // Execute current state
