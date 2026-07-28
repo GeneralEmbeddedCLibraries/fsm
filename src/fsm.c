@@ -3,7 +3,7 @@
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
 /**
-* @file     fsm.h
+* @file     fsm.c
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
@@ -50,7 +50,7 @@
 *    // ------------------------------------
 *
 *    // 1. Init
-*    fsm_init( &g_app_fsm, &g_fsm_cfg_table );
+*    fsm_init( &g_app_fsm, &g_boot_fsm_cfg_table );
 *
 *    // 2. Handle fsm
 *    @x_ms
@@ -93,9 +93,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *     Limit loop counts
+ *     Duration saturation limit
  */
-#define FSM_LIMIT_DURATION(cnt)    ((( cnt ) >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
+#define FSM_DURATION_MAX            ( 0x1FFFFFFFUL )
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -104,6 +104,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Function Prototypes
 ////////////////////////////////////////////////////////////////////////////////
+static uint32_t fsm_limit_duration(const uint32_t cnt);
 static void fsm_exit_cur_state  (const p_fsm_t fsm_inst);
 static void fsm_enter_next_state(const p_fsm_t fsm_inst);
 static void fsm_handle_cur_state(const p_fsm_t fsm_inst);
@@ -113,6 +114,26 @@ static void fsm_reset_state     (const p_fsm_t fsm_inst);
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Saturate loop/duration count to FSM_DURATION_MAX
+*
+* @param[in]    cnt     - Count to limit
+* @return       cnt     - Saturated count
+*/
+////////////////////////////////////////////////////////////////////////////////
+static uint32_t fsm_limit_duration(const uint32_t cnt)
+{
+    uint32_t limited = cnt;
+
+    if ( cnt >= FSM_DURATION_MAX )
+    {
+        limited = FSM_DURATION_MAX;
+    }
+
+    return limited;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -144,7 +165,7 @@ static void fsm_exit_cur_state(const p_fsm_t fsm_inst)
 static void fsm_enter_next_state(const p_fsm_t fsm_inst)
 {
     fsm_inst->tick_prev = FSM_GET_SYSTICK();
-    fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
+    fsm_inst->duration = 0U; // Make sure when state entry is executed duration is 0
 
     // Change state before entry callback
     fsm_inst->state.prev = fsm_inst->state.cur;
@@ -173,7 +194,7 @@ static void fsm_handle_cur_state(const p_fsm_t fsm_inst)
     // Accumulate time
     const uint32_t tick_now = FSM_GET_SYSTICK();
     fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
-    fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
+    fsm_inst->duration = fsm_limit_duration( fsm_inst->duration );
     fsm_inst->tick_prev = tick_now;
 
     // Execute current state
@@ -392,8 +413,7 @@ fsm_status_t fsm_init_static(fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg)
 *   Get FSM initialisation flag
 *
 * @param[in]    fsm_inst    - FSM instance
-* @param[out]    p_is_init  - Initialisation flag
-* @return       status      - Status of operation
+* @return       is_init     - Initialisation flag
 */
 ////////////////////////////////////////////////////////////////////////////////
 bool fsm_is_init(const p_fsm_t fsm_inst)
