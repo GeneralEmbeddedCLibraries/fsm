@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Ziga Miklosic
+// Copyright (c) 2026 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -9,8 +9,8 @@
 *@email     ziga.miklosic@gmail.com
 *@author    Matej Otic
 *@email     otic.matej@dancing-bits.com
-*@date      24.04.2025
-*@version   V2.1.0
+*@date      28.07.2026
+*@version   V2.2.0
 *
 *@section Description
 *

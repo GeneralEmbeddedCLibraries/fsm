@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Ziga Miklosic
+// Copyright (c) 2026 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
@@ -7,8 +7,8 @@
 * @brief    Finite State Machine (FSM) Configurations
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
-*@date      24.04.2025
-*@version   V2.1.0
+*@date      28.07.2026
+*@version   V2.2.0
 */
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -16,9 +16,8 @@
 * @{ <!-- BEGIN GROUP -->
 */
 ////////////////////////////////////////////////////////////////////////////////
-
-#ifndef _FSM_CFG_H_
-#define _FSM_CFG_H_
+#ifndef FSM_CFG_H
+#define FSM_CFG_H
 
 ////////////////////////////////////////////////////////////////////////////////
 // Includes
@@ -96,4 +95,4 @@
    #define FSM_ASSERT(x)                { ; }
 #endif
 
-#endif // _FSM_CFG_H_
+#endif // FSM_CFG_H

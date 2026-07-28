@@ -5,12 +5,12 @@ FSM module is implemented in object oriented fashion as it provide to have multi
 
 ## **Dependencies**
 
-FMS module does not have any dependencies.
+FSM module does not have any dependencies.
 
 ## **Limitations**
 
 ### **1. Multientry**
-Module is not written to be used on multi core/task/intrrupts systems. 
+Module is not written to be used on multi core/task/interrupts systems.
 
 ## **General Embedded C Libraries Ecosystem**
 In order to be part of *General Embedded C Libraries Ecosystem* this module must be placed in following path: 
@@ -22,14 +22,16 @@ root/middleware/fsm/fsm/"module_space"
  ## **API**
 | API Functions | Description | Prototype |
 | --- | ----------- | ----- |
-| **fsm_init**              | Initialization of FSM module              | fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg) |****
-| **fsm_is_init**           | Get initialization flag                   | fsm_status_t fsm_is_init(p_fsm_t fsm_inst, bool * const p_is_init) |
+| **fsm_init**              | Initialization of FSM module, using dynamically (malloc) allocated instance | fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg) |****
+| **fsm_init_static**       | Initialization of FSM module, using caller-provided (static) instance | fsm_status_t fsm_init_static(fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg) |
+| **fsm_is_init**           | Get initialization flag                   | bool fsm_is_init(const p_fsm_t fsm_inst) |
 | **fsm_reset**             | Reset FSM handler                         | fsm_status_t fsm_reset(const p_fsm_t fsm_inst) |
-| **fsm_hndl**              | FSM handler                               | fsm_status_t fsm_hndl(p_fsm_t fsm_inst) |
-| **fsm_goto_state**        | Change FSM state                          | fsm_status_t fsm_goto_state(p_fsm_t fsm_inst, const uint8_t state) |
+| **fsm_hndl**              | FSM handler                               | fsm_status_t fsm_hndl(const p_fsm_t fsm_inst) |
+| **fsm_goto_state**        | Change FSM state                          | fsm_status_t fsm_goto_state(const p_fsm_t fsm_inst, const uint8_t state) |
 | **fsm_get_state**         | Get current FSM state                     | uint8_t fsm_get_state(const p_fsm_t fsm_inst) |
+| **fsm_get_prev_state**    | Get previous FSM state                    | uint8_t fsm_get_prev_state(const p_fsm_t fsm_inst) |
 | **fsm_get_duration**      | Get time spend in state in miliseconds    | uint32_t fsm_get_duration(const p_fsm_t fsm_inst) |
-| **fsm_reset_duration**    | Reset time spend in state                 | uint32_t fsm_get_duration(const p_fsm_t fsm_inst) |
+| **fsm_reset_duration**    | Reset time spend in state                 | void fsm_reset_duration(const p_fsm_t fsm_inst) |
 | **fsm_get_data**          | Get (read) data from FSM                  | fsm_data_t fsm_get_data(const p_fsm_t fsm_inst) |
 | **fsm_set_data**          | Set (write) data to FSM                   | void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data) |
 | **fsm_get_first_entry**   | Get first time state entry flag           | bool fsm_get_first_entry(const p_fsm_t fsm_inst) |
@@ -97,8 +99,26 @@ static p_fsm_t g_app_fsm = NULL;
 ```
 
 6. Initialize FSM instance
+
+Dynamically (malloc) allocated instance, via *fsm_init*:
 ```C
-if ( eFSM_OK != fsm_init( &g_app_fsm, &g_fsm_cfg_table ))
+if ( eFSM_OK != fsm_init( &g_app_fsm, &g_boot_fsm_cfg_table ))
+{
+    // Initialization failed...
+    // Further actions here...
+}
+```
+
+Alternatively, using caller-provided (static, malloc-free) storage, via *fsm_init_static*. This requires
+the actual `fsm_t` instance (not just the `p_fsm_t` handle from step 5) to be allocated by the caller:
+```C
+/**
+ * 	App FSM instance storage (replaces "static p_fsm_t g_app_fsm = NULL;" from step 5)
+ */
+static fsm_t   g_app_fsm_inst = {0};
+static p_fsm_t g_app_fsm = &g_app_fsm_inst;
+
+if ( eFSM_OK != fsm_init_static( g_app_fsm, &g_boot_fsm_cfg_table ))
 {
     // Initialization failed...
     // Further actions here...
