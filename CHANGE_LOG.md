@@ -5,6 +5,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project/module adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## V2.2.0 - 28.07.2026
+
+### Added
+ - Added new API to retrieve previous FSM state (*fsm_get_prev_state*)
+ - Added static initialization API, for caller-provided (malloc-free) FSM instances (*fsm_init_static*)
+
+### Changed
+ - *fsm_is_init* now returns initialization flag directly instead of via status + output pointer
+ - Enumerations forced to C99 fixed-width integer storage
+ - Reserved (double-leading-underscore) header guards replaced with standard form
+
+### Removed
+ - Removed unused option from configurations
+
+### Todo
+ - State transition allowance & checking
+
+---
 ## V2.1.0 - 24.04.2025
 
 ### Changed

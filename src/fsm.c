@@ -1,16 +1,16 @@
-// Copyright (c) 2025 Ziga Miklosic
+// Copyright (c) 2026 Ziga Miklosic
 // All Rights Reserved
 // This software is under MIT licence (https://opensource.org/licenses/MIT)
 ////////////////////////////////////////////////////////////////////////////////
 /**
-* @file     fsm.h
+* @file     fsm.c
 * @brief    Finite State Machine (FSM)
 *@author    Ziga Miklosic
 *@email     ziga.miklosic@gmail.com
 *@author    Matej Otic
 *@email     otic.matej@dancing-bits.com
-*@date      24.04.2025
-*@version   V2.1.0
+*@date      28.07.2026
+*@version   V2.2.0
 *
 *@section Description
 *
@@ -50,7 +50,7 @@
 *    // ------------------------------------
 *
 *    // 1. Init
-*    fsm_init( &g_app_fsm, &g_fsm_cfg_table );
+*    fsm_init( &g_app_fsm, &g_boot_fsm_cfg_table );
 *
 *    // 2. Handle fsm
 *    @x_ms
@@ -87,40 +87,10 @@
 #include <stdlib.h>
 
 #include "fsm.h"
-#include "../../fsm_cfg.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
-
-/**
- *     FSM States
- */
-typedef struct
-{
-    bool is_init;   /**<Is current state initial state? */
-    uint8_t cur;    /**<Current state */
-    uint8_t next;   /**<Next/Requested state */
-} fsm_state_t;
-
-/**
- *     FSM data
- */
-typedef struct fsm_s
-{
-    fsm_cfg_t *     p_cfg;          /**<FSM setup */
-    uint32_t        duration;       /**<Time duration in ms */
-    uint32_t        tick_prev;      /**<Previous tick in ms, for duration calculations*/
-    fsm_state_t     state;          /**<Current state of FSM */
-    fsm_data_t      data;           /**<Data shared across states */
-    bool            first_entry;    /**<First entry of state */
-    bool            is_init;        /**<Initialization guard */
-} fsm_t;
-
-/**
- *     Limit loop counts
- */
-#define FSM_LIMIT_DURATION(cnt)    (( cnt >= 0x1FFFFFFFUL ) ? ( 0x1FFFFFFFUL ) : ( cnt ))
 
 ////////////////////////////////////////////////////////////////////////////////
 // Variables
@@ -169,9 +139,10 @@ static void fsm_exit_cur_state(const p_fsm_t fsm_inst)
 static void fsm_enter_next_state(const p_fsm_t fsm_inst)
 {
     fsm_inst->tick_prev = FSM_GET_SYSTICK();
-    fsm_inst->duration = 0.0f; // Make sure when state entry is executed duration is 0
+    fsm_inst->duration = 0U; // Make sure when state entry is executed duration is 0
 
     // Change state before entry callback
+    fsm_inst->state.prev = fsm_inst->state.cur;
     fsm_inst->state.cur = fsm_inst->state.next;
 
     // Execute on entry actions
@@ -185,8 +156,8 @@ static void fsm_enter_next_state(const p_fsm_t fsm_inst)
 /**
 *       Handle current FSM state by calling its activity function
 *
-*       This function increments state duration and saturates it before activity
-*       is executed.
+*       This function increments state duration, guarding against unsigned
+*       overflow, before activity is executed.
 *
 * @param[in]    fsm_inst    - FSM instance
 * @return       void
@@ -196,8 +167,14 @@ static void fsm_handle_cur_state(const p_fsm_t fsm_inst)
 {
     // Accumulate time
     const uint32_t tick_now = FSM_GET_SYSTICK();
-    fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
-    fsm_inst->duration = FSM_LIMIT_DURATION( fsm_inst->duration );
+    const uint32_t tick_dlt = tick_now - fsm_inst->tick_prev;
+
+    // Check for overflow
+    if (( fsm_inst->duration + tick_dlt ) > fsm_inst->duration )
+    {
+        fsm_inst->duration += tick_dlt; 
+    }
+    
     fsm_inst->tick_prev = tick_now;
 
     // Execute current state
@@ -235,6 +212,9 @@ static void fsm_manager(const p_fsm_t fsm_inst)
         #endif
 
         fsm_inst->state.is_init = false;
+
+        // First entry to state from initial state
+        fsm_inst->first_entry = true;
 
         // Execute entry of next state only; initial state does not have an exit activity
         fsm_enter_next_state(fsm_inst);
@@ -293,6 +273,7 @@ static void fsm_reset_state(const p_fsm_t fsm_inst)
 {
     fsm_inst->state.cur     = 0U;
     fsm_inst->state.next    = fsm_inst->state.cur;
+    fsm_inst->state.prev    = fsm_inst->state.cur;
     fsm_inst->state.is_init = true;
     fsm_inst->duration      = 0U;
     fsm_inst->tick_prev     = 0U;
@@ -345,10 +326,54 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
             &&  ( p_cfg->num_of > 0 ))
         {
             // Get setup
-            (*p_fsm_inst)->p_cfg = (fsm_cfg_t*) p_cfg;
+            (*p_fsm_inst)->p_cfg = p_cfg;
 
             // Init FSM to default
             fsm_reset_state(*p_fsm_inst);
+        }
+        else
+        {
+            status = eFSM_ERROR_INIT;
+        }
+    }
+    else
+    {
+        status = eFSM_ERROR;
+    }
+
+    return status;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*   Initialise FSM using caller-provided (static) storage
+*
+* @param[out]   fsm_inst    - Pointer to caller-provided FSM instance
+* @param[in]    p_cfg       - Pointer to FSM configuration table
+* @return       status      - Status of initialisation
+*/
+////////////////////////////////////////////////////////////////////////////////
+fsm_status_t fsm_init_static(fsm_t * fsm_inst, const fsm_cfg_t * const p_cfg)
+{
+    fsm_status_t status = eFSM_OK;
+
+    FSM_ASSERT( NULL != fsm_inst );
+    FSM_ASSERT( NULL != p_cfg );
+
+    if     (    ( NULL != fsm_inst )
+        &&    ( NULL != p_cfg ))
+    {
+        FSM_ASSERT( p_cfg->num_of > 0 );
+
+        // Check if configuration is valid
+        if ( p_cfg->num_of > 0 )
+        {
+            // Get setup
+            fsm_inst->p_cfg = p_cfg;
+
+            // Init FSM to default
+            fsm_reset_state( fsm_inst );
         }
         else
         {
@@ -368,24 +393,19 @@ fsm_status_t fsm_init(p_fsm_t * p_fsm_inst, const fsm_cfg_t * const p_cfg)
 *   Get FSM initialisation flag
 *
 * @param[in]    fsm_inst    - FSM instance
-* @param[out]    p_is_init  - Initialisation flag
-* @return       status      - Status of operation
+* @return       is_init     - Initialisation flag
 */
 ////////////////////////////////////////////////////////////////////////////////
-fsm_status_t fsm_is_init(const p_fsm_t fsm_inst, bool * const p_is_init)
+bool fsm_is_init(const p_fsm_t fsm_inst)
 {
-    fsm_status_t status = eFSM_OK;
+    FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
-        *p_is_init = fsm_inst->is_init;
-    }
-    else
-    {
-        status = eFSM_ERROR;
+        return fsm_inst->is_init;
     }
 
-    return status;
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -399,6 +419,8 @@ fsm_status_t fsm_is_init(const p_fsm_t fsm_inst, bool * const p_is_init)
 fsm_status_t fsm_reset(const p_fsm_t fsm_inst)
 {
     fsm_status_t status = eFSM_OK;
+
+    FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
@@ -487,16 +509,34 @@ fsm_status_t fsm_goto_state(const p_fsm_t fsm_inst, const uint8_t state)
 ////////////////////////////////////////////////////////////////////////////////
 uint8_t fsm_get_state(const p_fsm_t fsm_inst)
 {
-    uint8_t state = 0U;
-
     FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
-        state = fsm_inst->state.cur;
+        return fsm_inst->state.cur;
     }
 
-    return state;
+    return 0U;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/**
+*       Get previous FSM state
+*
+* @param[in]    fsm_inst    - FSM instance
+* @return       state       - Previous state of FSM
+*/
+////////////////////////////////////////////////////////////////////////////////
+uint8_t fsm_get_prev_state(const p_fsm_t fsm_inst)
+{
+    FSM_ASSERT( NULL != fsm_inst );
+
+    if ( NULL != fsm_inst )
+    {
+        return fsm_inst->state.prev;
+    }
+
+    return 0U;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -509,16 +549,14 @@ uint8_t fsm_get_state(const p_fsm_t fsm_inst)
 ////////////////////////////////////////////////////////////////////////////////
 uint32_t fsm_get_duration(const p_fsm_t fsm_inst)
 {
-    uint32_t duration = 0;
-
     FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
-        duration = fsm_inst->duration;
+        return fsm_inst->duration;
     }
 
-    return duration;
+    return 0U;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -573,6 +611,8 @@ fsm_data_t fsm_get_data(const p_fsm_t fsm_inst)
 ////////////////////////////////////////////////////////////////////////////////
 void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data)
 {
+    FSM_ASSERT( NULL != fsm_inst );
+
     if ( NULL != fsm_inst )
     {
         fsm_inst->data = data;
@@ -590,6 +630,8 @@ void fsm_set_data(const p_fsm_t fsm_inst, const fsm_data_t data)
 bool fsm_get_first_entry(const p_fsm_t fsm_inst)
 {
     bool first_entry = false;
+
+    FSM_ASSERT( NULL != fsm_inst );
 
     if ( NULL != fsm_inst )
     {
