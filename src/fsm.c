@@ -104,7 +104,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Function Prototypes
 ////////////////////////////////////////////////////////////////////////////////
-static uint32_t fsm_limit_duration(const uint32_t cnt);
 static void fsm_exit_cur_state  (const p_fsm_t fsm_inst);
 static void fsm_enter_next_state(const p_fsm_t fsm_inst);
 static void fsm_handle_cur_state(const p_fsm_t fsm_inst);
@@ -114,26 +113,6 @@ static void fsm_reset_state     (const p_fsm_t fsm_inst);
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-/**
-*       Saturate loop/duration count to FSM_DURATION_MAX
-*
-* @param[in]    cnt     - Count to limit
-* @return       cnt     - Saturated count
-*/
-////////////////////////////////////////////////////////////////////////////////
-static uint32_t fsm_limit_duration(const uint32_t cnt)
-{
-    uint32_t limited = cnt;
-
-    if ( cnt >= FSM_DURATION_MAX )
-    {
-        limited = FSM_DURATION_MAX;
-    }
-
-    return limited;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
@@ -194,7 +173,13 @@ static void fsm_handle_cur_state(const p_fsm_t fsm_inst)
     // Accumulate time
     const uint32_t tick_now = FSM_GET_SYSTICK();
     fsm_inst->duration += (uint32_t) ( tick_now - fsm_inst->tick_prev );
-    fsm_inst->duration = fsm_limit_duration( fsm_inst->duration );
+
+    // Saturate duration
+    if ( fsm_inst->duration >= FSM_DURATION_MAX )
+    {
+        fsm_inst->duration = FSM_DURATION_MAX;
+    }
+
     fsm_inst->tick_prev = tick_now;
 
     // Execute current state

@@ -18,9 +18,8 @@
 * @{ <!-- BEGIN GROUP -->
 */
 ////////////////////////////////////////////////////////////////////////////////
-
-#ifndef __FSM_H_
-#define __FSM_H_
+#ifndef FSM_H
+#define FSM_H
 
 ////////////////////////////////////////////////////////////////////////////////
 // Includes
@@ -45,12 +44,13 @@
 /**
  *     FSM status
  */
-typedef enum
+enum
 {
     eFSM_OK         = 0x00U,        /**<Normal operation */
     eFSM_ERROR      = 0x01U,        /**<General error */
     eFSM_ERROR_INIT = 0x02U,        /**<Initialization error */
-} fsm_status_t;
+};
+typedef uint8_t fsm_status_t;
 
 /**
  *    Generic data type that is shared across FSM states
@@ -144,7 +144,7 @@ fsm_data_t   fsm_get_data           (const p_fsm_t fsm_inst);
 void         fsm_set_data           (const p_fsm_t fsm_inst, const fsm_data_t data);
 bool         fsm_get_first_entry    (const p_fsm_t fsm_inst);
 
-#endif // __FSM_H_
+#endif // FSM_H
 
 ////////////////////////////////////////////////////////////////////////////////
 /**
